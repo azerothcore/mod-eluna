@@ -15,16 +15,8 @@
 #include "ElunaCreatureAI.h"
 #include "ElunaInstanceAI.h"
 
-#if defined(TRINITY_PLATFORM) && defined(TRINITY_PLATFORM_WINDOWS)
-#if TRINITY_PLATFORM == TRINITY_PLATFORM_WINDOWS
-#define ELUNA_WINDOWS
-#endif
-#elif defined(AC_PLATFORM) && defined(AC_PLATFORM_WINDOWS)
+#if defined(AC_PLATFORM) && defined(AC_PLATFORM_WINDOWS)
 #if AC_PLATFORM == AC_PLATFORM_WINDOWS
-#define ELUNA_WINDOWS
-#endif
-#elif defined(PLATFORM) && defined(PLATFORM_WINDOWS)
-#if PLATFORM == PLATFORM_WINDOWS
 #define ELUNA_WINDOWS
 #endif
 #else
@@ -33,17 +25,7 @@
 
 // Some dummy includes containing BOOST_VERSION:
 // ObjectAccessor.h Config.h Log.h
-#if !defined MANGOS
-#define USING_BOOST
-#endif
-
-#ifdef USING_BOOST
 #include <boost/filesystem.hpp>
-#else
-#include <ace/ACE.h>
-#include <ace/Dirent.h>
-#include <ace/OS_NS_sys_stat.h>
-#endif
 
 extern "C"
 {
@@ -71,11 +53,9 @@ void Eluna::Initialize()
     LOCK_ELUNA;
     ASSERT(!IsInitialized());
 
-#if defined TRINITY || AZEROTHCORE
     // For instance data the data column needs to be able to hold more than 255 characters (tinytext)
     // so we change it to TEXT automatically on startup
     CharacterDatabase.DirectExecute("ALTER TABLE `instance` CHANGE COLUMN `data` `data` TEXT NOT NULL");
-#endif
 
     LoadScriptPaths();
 
@@ -108,17 +88,8 @@ void Eluna::LoadScriptPaths()
     lua_scripts.clear();
     lua_extensions.clear();
 
-#if defined(AZEROTHCORE)
     lua_folderpath = eConfigMgr->GetOption<std::string>("Eluna.ScriptPath", "lua_scripts");
-#else
-    lua_folderpath = eConfigMgr->GetStringDefault("Eluna.ScriptPath", "lua_scripts");
-#endif
 
-#ifndef ELUNA_WINDOWS
-    if (lua_folderpath[0] == '~')
-        if (const char* home = getenv("HOME"))
-            lua_folderpath.replace(0, 1, home);
-#endif
     ELUNA_LOG_INFO("[Eluna]: Searching scripts from `{}`", lua_folderpath);
     lua_requirepath.clear();
     GetScripts(lua_folderpath);
@@ -225,11 +196,7 @@ void Eluna::CloseLua()
 
 void Eluna::OpenLua()
 {
-#if defined(AZEROTHCORE)
     enabled = eConfigMgr->GetOption<bool>("Eluna.Enabled", true);
-#else
-    enabled = eConfigMgr->GetBoolDefault("Eluna.Enabled", true);
-#endif
 
     if (!IsEnabled())
     {
@@ -362,7 +329,6 @@ void Eluna::GetScripts(std::string path)
 {
     ELUNA_LOG_DEBUG("[Eluna]: GetScripts from path `{}`", path);
 
-#ifdef USING_BOOST
     boost::filesystem::path someDir(path);
     boost::filesystem::directory_iterator end_iter;
 
@@ -379,15 +345,9 @@ void Eluna::GetScripts(std::string path)
             std::string fullpath = dir_iter->path().generic_string();
 
             // Check if file is hidden
-#ifdef ELUNA_WINDOWS
             DWORD dwAttrib = GetFileAttributes(fullpath.c_str());
             if (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_HIDDEN))
                 continue;
-#else
-            std::string name = dir_iter->path().filename().generic_string().c_str();
-            if (name[0] == '.')
-                continue;
-#endif
 
             // load subfolder
             if (boost::filesystem::is_directory(dir_iter->status()))
@@ -404,53 +364,6 @@ void Eluna::GetScripts(std::string path)
             }
         }
     }
-#else
-    ACE_Dirent dir;
-    if (dir.open(path.c_str()) == -1) // Error opening directory, return
-        return;
-
-    lua_requirepath +=
-        path + "/?.lua;" +
-        path + "/?.ext;" +
-        path + "/?.dll;" +
-        path + "/?.so;";
-
-    ACE_DIRENT *directory = 0;
-    while ((directory = dir.read()))
-    {
-        // Skip the ".." and "." files.
-        if (ACE::isdotdir(directory->d_name))
-            continue;
-
-        std::string fullpath = path + "/" + directory->d_name;
-
-        // Check if file is hidden
-#ifdef ELUNA_WINDOWS
-        DWORD dwAttrib = GetFileAttributes(fullpath.c_str());
-        if (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_HIDDEN))
-            continue;
-#else
-        std::string name = directory->d_name;
-        if (name[0] == '.')
-            continue;
-#endif
-
-        ACE_stat stat_buf;
-        if (ACE_OS::lstat(fullpath.c_str(), &stat_buf) == -1)
-            continue;
-
-        // load subfolder
-        if ((stat_buf.st_mode & S_IFMT) == (S_IFDIR))
-        {
-            GetScripts(fullpath);
-            continue;
-        }
-
-        // was file, try add
-        std::string filename = directory->d_name;
-        AddScriptPath(filename, fullpath);
-    }
-#endif
 }
 
 static bool ScriptPathComparator(const LuaScript& first, const LuaScript& second)
@@ -539,11 +452,7 @@ void Eluna::RunScripts()
 void Eluna::InvalidateObjects()
 {
     ++callstackid;
-#ifdef TRINITY
-    ASSERT(callstackid, "Callstackid overflow");
-#else
     ASSERT(callstackid && "Callstackid overflow");
-#endif
 }
 
 void Eluna::Report(lua_State* _L)
@@ -599,11 +508,7 @@ bool Eluna::ExecuteCall(int params, int res)
         ASSERT(false); // stack probably corrupt
     }
 
-#if defined(AZEROTHCORE)
     bool usetrace = eConfigMgr->GetOption<bool>("Eluna.TraceBack", false);
-#else
-    bool usetrace = eConfigMgr->GetBoolDefault("Eluna.TraceBack", false);
-#endif
 
     if (usetrace)
     {
