@@ -8,15 +8,7 @@
 #define _ELUNA_INSTANCE_DATA_H
 
 #include "LuaEngine.h"
-#if defined(TRINITY) || AZEROTHCORE
 #include "InstanceScript.h"
-#else
-#include "InstanceData.h"
-#endif
-
-#ifdef TRINITY
-#include "Map.h"
-#endif
 
 /*
  * This class is a small wrapper around `InstanceData`,
@@ -64,36 +56,23 @@ private:
     std::string lastSaveData;
 
 public:
-#ifdef TRINITY
-    ElunaInstanceAI(Map* map) : InstanceData(map->ToInstanceMap())
-    {
-    }
-#else
     ElunaInstanceAI(Map* map) : InstanceData(map)
     {
     }
-#endif
 
-#ifndef TRINITY
     void Initialize() override;
-#endif
 
     /*
      * These are responsible for serializing/deserializing the instance's
      *   data table to/from the core.
      */
     void Load(const char* data) override;
-#if defined TRINITY || AZEROTHCORE
     // Simply calls Save, since the functions are a bit different in name and data types on different cores
     std::string GetSaveData() override
     {
         return Save();
     }
     const char* Save() const;
-#else
-    const char* Save() const override;
-#endif
-
 
     /*
      * Calls `Load` with the last save data that was passed to
@@ -139,11 +118,7 @@ public:
         sEluna->OnPlayerEnterInstance(this, player);
     }
 
-#if defined TRINITY || AZEROTHCORE
     void OnGameObjectCreate(GameObject* gameobject) override
-#else
-    void OnObjectCreate(GameObject* gameobject) override
-#endif
     {
         sEluna->OnGameObjectCreate(this, gameobject);
     }

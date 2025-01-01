@@ -14,9 +14,7 @@
 #include "Group.h"
 #include "Item.h"
 #include "Chat.h"
-#ifndef TRINITY
 #include "Player.h"
-#endif
 #include "Weather.h"
 #include "World.h"
 #include "Hooks.h"
@@ -32,46 +30,23 @@ extern "C"
 #include "lua.h"
 };
 
-#if defined(TRINITY) || AZEROTHCORE
 struct ItemTemplate;
 typedef BattlegroundTypeId BattleGroundTypeId;
-#else
-struct ItemPrototype;
-typedef ItemPrototype ItemTemplate;
-typedef SpellEffectIndex SpellEffIndex;
-struct SpellEntry;
-typedef SpellEntry SpellInfo;
-#ifdef CLASSIC
-typedef int Difficulty;
-#endif
-#endif
-#ifndef AZEROTHCORE
-struct AreaTriggerEntry;
-#else
 typedef AreaTrigger AreaTriggerEntry;
-#endif
 class AuctionHouseObject;
 struct AuctionEntry;
-#if defined(TRINITY) || AZEROTHCORE
 class Battleground;
 typedef Battleground BattleGround;
-#endif
 class Channel;
 class Corpse;
 class Creature;
 class CreatureAI;
 class GameObject;
-#if defined(TRINITY) || AZEROTHCORE
 class GameObjectAI;
-#endif
 class Guild;
 class Group;
-#if defined(TRINITY) || AZEROTHCORE
 class InstanceScript;
 typedef InstanceScript InstanceData;
-#else
-class InstanceData;
-#endif
 class ElunaInstanceAI;
 class Item;
 class Pet;
@@ -79,24 +54,14 @@ class Player;
 class Quest;
 class Spell;
 class SpellCastTargets;
-#if defined(TRINITY) || AZEROTHCORE
 class TempSummon;
-#else
-class TemporarySummon;
-typedef TemporarySummon TempSummon;
-#endif
 // class Transport;
 class Unit;
 class Weather;
 class WorldPacket;
 #ifndef CLASSIC
 #ifndef TBC
-#if defined(TRINITY) || AZEROTHCORE
 class Vehicle;
-#else
-class VehicleInfo;
-typedef VehicleInfo Vehicle;
-#endif
 #endif
 #endif
 
@@ -121,13 +86,7 @@ struct LuaScript
 #define ELUNA_STATE_PTR "Eluna State Ptr"
 #define LOCK_ELUNA Eluna::Guard __guard(Eluna::GetLock())
 
-#if defined(TRINITY)
-#define ELUNA_GAME_API TC_GAME_API
-#elif defined(AZEROTHCORE)
 #define ELUNA_GAME_API AC_GAME_API
-#else
-#define ELUNA_GAME_API
-#endif
 
 class ELUNA_GAME_API Eluna
 {
@@ -560,11 +519,7 @@ public:
 
     /* World */
     void OnOpenStateChange(bool open);
-#ifndef AZEROTHCORE
-    void OnConfigLoad(bool reload);
-#else
     void OnConfigLoad(bool reload, bool isBefore);
-#endif
     void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask);
     void OnShutdownCancel();
     void OnStartup();
@@ -574,11 +529,7 @@ public:
 
     /* Battle Ground */
     void OnBGStart(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId);
-#if AZEROTHCORE
     void OnBGEnd(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId, TeamId winner);
-#else
-    void OnBGEnd(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId, Team winner);
-#endif
     void OnBGCreate(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId);
     void OnBGDestroy(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId);
 };
