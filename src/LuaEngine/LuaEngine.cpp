@@ -749,6 +749,32 @@ void Eluna::Push(lua_State* luastate, SpellEntry const& spell)
     Push(luastate, &spell);
 }
 
+std::string Eluna::FormatText(lua_State* L, const std::string& text, int startIndex)
+{
+    std::string formattedText = text;
+    size_t position = 0;
+
+    for (int i = startIndex; i <= lua_gettop(L); ++i)
+    {
+        position = formattedText.find("{}", position);
+        if (position == std::string::npos)
+            break;
+
+        std::string arg;
+        if (lua_isnumber(L, i))
+            arg = std::to_string(lua_tonumber(L, i));
+        else if (lua_isstring(L, i))
+            arg = lua_tostring(L, i);
+        else
+            continue;
+
+        formattedText.replace(position, 2, arg);
+        position += arg.length();
+    }
+
+    return formattedText;
+}
+
 std::string Eluna::FormatQuery(lua_State* L, const char* query)
 {
     int numArgs = lua_gettop(L);

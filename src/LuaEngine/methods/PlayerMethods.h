@@ -3256,9 +3256,16 @@ namespace LuaPlayer
      */
     int SendBroadcastMessage(lua_State* L, Player* player)
     {
-        const char* message = Eluna::CHECKVAL<const char*>(L, 2);
-        if (std::string(message).length() > 0)
-            ChatHandler(player->GetSession()).SendSysMessage(message);
+        std::string message = Eluna::CHECKVAL<std::string>(L, 2);
+
+        if (!message.empty())
+        {
+            if (lua_gettop(L) > 2)
+                message = Eluna::FormatText(L, message, 3);
+
+            ChatHandler(player->GetSession()).SendSysMessage(message.c_str());
+        }
+
         return 0;
     }
 
@@ -3269,9 +3276,16 @@ namespace LuaPlayer
      */
     int SendAreaTriggerMessage(lua_State* L, Player* player)
     {
-        std::string msg = Eluna::CHECKVAL<std::string>(L, 2);
-        if (msg.length() > 0)
-            player->GetSession()->SendAreaTriggerMessage("{}", msg.c_str());
+        std::string message = Eluna::CHECKVAL<std::string>(L, 2);
+
+        if (!message.empty())
+        {
+            if (lua_gettop(L) > 2)
+                message = Eluna::FormatText(L, message, 3);
+
+            player->GetSession()->SendAreaTriggerMessage("{}", message.c_str());
+        }
+
         return 0;
     }
 
@@ -3282,9 +3296,15 @@ namespace LuaPlayer
      */
     int SendNotification(lua_State* L, Player* player)
     {
-        std::string msg = Eluna::CHECKVAL<std::string>(L, 2);
-        if (msg.length() > 0)
-            ChatHandler(player->GetSession()).SendNotification("{}", msg);
+        std::string message = Eluna::CHECKVAL<std::string>(L, 2);
+
+        if (!message.empty())
+        {
+            if (lua_gettop(L) > 2)
+                message = Eluna::FormatText(L, message, 3);
+
+            ChatHandler(player->GetSession()).SendNotification("{}", message);
+        }
         return 0;
     }
 

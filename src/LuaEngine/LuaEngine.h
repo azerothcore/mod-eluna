@@ -270,6 +270,7 @@ public:
     }
     
     static std::string FormatQuery(lua_State* L, const char* query);
+    static std::string FormatText(lua_State* L, const std::string& text, int startIndex);
 
     bool ExecuteCall(int params, int res);
 
