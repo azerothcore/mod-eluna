@@ -812,6 +812,21 @@ public:
     {
         sEluna->OnCreatureKilledByPet(player, killed);
     }
+
+    bool CanPlayerUpdateSkill(Player* player, uint32 skill_id) override
+    {
+        return sEluna->OnCanPlayerUpdateSkill(player, skill_id);
+    }
+
+    void OnBeforePlayerUpdateSkill(Player* player, uint32 skill_id, uint32& value, uint32 max, uint32 step) override
+    {
+        sEluna->OnBeforePlayerUpdateSkill(player, skill_id, value, max, step);
+    }
+
+    void OnPlayerUpdateSkill(Player* player, uint32 skill_id, uint32 value, uint32 max, uint32 step, uint32 new_value) override
+    {
+        sEluna->OnPlayerUpdateSkill(player, skill_id, value, max, step, new_value);
+    }
 };
 
 class Eluna_ServerScript : public ServerScript

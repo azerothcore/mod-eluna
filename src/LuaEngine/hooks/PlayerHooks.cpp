@@ -706,3 +706,50 @@ void Eluna::OnCreatureKilledByPet(Player* player, Creature* killed)
     Push(killed);
     CallAllFunctions(PlayerEventBindings, key);
 }
+
+bool Eluna::OnCanPlayerUpdateSkill(Player* player, uint32 skill_id)
+{
+    START_HOOK_WITH_RETVAL(PLAYER_EVENT_ON_CAN_UPDATE_SKILL, true);
+    Push(player);
+    Push(skill_id);
+    return CallAllFunctionsBool(PlayerEventBindings, key);
+}
+
+void Eluna::OnBeforePlayerUpdateSkill(Player* player, uint32 skill_id, uint32& value, uint32 max, uint32 step)
+{
+    START_HOOK(PLAYER_EVENT_ON_BEFORE_UPDATE_SKILL);
+    Push(player);
+    Push(skill_id);
+    Push(value);
+    Push(max);
+    Push(step);
+
+    int valueIndex = lua_gettop(L) -2;
+    int n = SetupStack(PlayerEventBindings, key, 5);
+    while (n > 0)
+    {
+        int r = CallOneFunction(n--, 5, 1);
+        if (lua_isnumber(L, r))
+        {
+            value = CHECKVAL<uint32>(L, r);
+            // Update the stack for subsequent calls.
+            ReplaceArgument(value, valueIndex);
+        }
+
+        lua_pop(L, 1);
+    }
+
+    CleanUpStack(5);
+}
+
+void Eluna::OnPlayerUpdateSkill(Player* player, uint32 skill_id, uint32 value, uint32 max, uint32 step, uint32 new_value)
+{
+    START_HOOK(PLAYER_EVENT_ON_UPDATE_SKILL);
+    Push(player);
+    Push(skill_id);
+    Push(value);
+    Push(max);
+    Push(step);
+    Push(new_value);
+    CallAllFunctions(PlayerEventBindings, key);
+}
