@@ -1013,6 +1013,32 @@ public:
     }
 };
 
+class Eluna_TicketScript : public TicketScript
+{
+public:
+    Eluna_TicketScript() : TicketScript("Eluna_TicketScript") { }
+
+    void OnTicketCreate(Player* player, GmTicket* ticket) override
+    {
+        sEluna->OnTicketCreate(player, ticket);
+    }
+
+    void OnTicketUpdate(Player* player, GmTicket* ticket) override
+    {
+        sEluna->OnTicketUpdate(player, ticket);
+    }
+
+    void OnTicketClose(Player* player, GmTicket* ticket) override
+    {
+        sEluna->OnTicketClose(player, ticket);
+    }
+
+    void OnTicketResolve(Player* player, GmTicket* ticket) override
+    {
+        sEluna->OnTicketResolve(player, ticket);
+    }
+};
+
 // Group all custom scripts
 void AddSC_ElunaLuaEngine()
 {
@@ -1033,6 +1059,7 @@ void AddSC_ElunaLuaEngine()
     new Eluna_PlayerScript();
     new Eluna_ServerScript();
     new Eluna_SpellSC();
+    new Eluna_TicketScript();
     new Eluna_UnitScript();
     new Eluna_VehicleScript();
     new Eluna_WorldObjectScript();
