@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2010 - 2024 Eluna Lua Engine <https://forgeluaengine.github.io/>
+* Copyright (C) 2010 - 2024 Eluna Lua Engine <https://elunaluaengine.github.io/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.md for more information
 */
@@ -590,14 +590,6 @@ namespace LuaSpellInfo
         return 1;
     }
     
-    /*  int IsAffectedBySpellMod(lua_State* L, SpellInfo* spell_info)
-        {
-            const SpellInfo* auraSpellInfo = Eluna::CHECKOBJ<SpellInfo>(L, 2);
-            Eluna::Push(L, spell_info->IsAffectedBySpellMod(auraSpellInfo));
-            return 1;
-        }
-    */
-    
     int CanPierceImmuneAura(lua_State* L, SpellInfo* spell_info)
     {
         const SpellInfo* auraSpellInfo = Eluna::CHECKOBJ<SpellInfo>(L, 2);
@@ -738,6 +730,25 @@ namespace LuaSpellInfo
     int GetSpellSpecific(lua_State* L, SpellInfo* spell_info)
     {
         Eluna::Push(L, spell_info->GetSpellSpecific());
+        return 1;
+    }
+
+    /**
+     * Get the [SpellEffectInfo].
+     *
+     * @return [SpellEffectInfo] spell_effect_info
+     */
+    int GetEffectInfo(lua_State* L, SpellInfo* spell_info)
+    {
+        uint8 effIndex = Eluna::CHECKVAL<uint32>(L, 2);
+        if (effIndex >= MAX_SPELL_EFFECTS)
+            return 0;
+
+        SpellEffectInfo const& spellEffectInfo = spell_info->GetEffect(static_cast<SpellEffIndex>(effIndex));
+        if (!spellEffectInfo.IsEffect())
+            return 0;
+
+        Eluna::Push(L, spellEffectInfo);
         return 1;
     }
 }

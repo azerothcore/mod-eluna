@@ -32,6 +32,7 @@
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
 #include "Spell.h"
+#include "SpellInfo.h"
 #include "SpellAuras.h"
 #include "SpellInfo.h"
 #include "SpellMgr.h"
