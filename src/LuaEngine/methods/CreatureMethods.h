@@ -842,6 +842,18 @@ namespace LuaCreature
     }
 
     /**
+    * Gets the [Creature]'s current ReactState.
+    *
+    * @return [ReactState] The current react state of the creature.
+    */
+    int GetReactState(lua_State* L, Creature* creature)
+    {
+        ReactStates state = creature->GetReactState();
+        lua_pushinteger(L, (int)state);
+        return 1;
+    }
+
+    /**
      * Sets the [Creature]'s NPC flags to `flags`.
      *
      * @param [NPCFlags] flags
@@ -876,18 +888,6 @@ namespace LuaCreature
         uint32 flags = Eluna::CHECKVAL<uint32>(L, 2);
         creature->SetUInt32Value(UNIT_FIELD_FLAGS_2, flags);
         return 0;
-    }
-
-    /**
-    * Gets the [Creature]'s current ReactState.
-    *
-    * @return [ReactState] The current react state of the creature.
-    */
-    int GetReactState(lua_State* L, Creature* creature)
-    {
-        ReactStates state = creature->GetReactState();
-        lua_pushinteger(L, (int)state);
-        return 1;
     }
 
     /**

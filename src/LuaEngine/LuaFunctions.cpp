@@ -540,6 +540,7 @@ ElunaRegister<Player> PlayerMethods[] =
     { "GetPlayerSettingValue", &LuaPlayer::GetPlayerSettingValue },
     { "GetTrader", &LuaPlayer::GetTrader },
     { "GetBonusTalentCount", &LuaPlayer::GetBonusTalentCount },
+    { "GetKnownTaxiNodes", &LuaPlayer::GetKnownTaxiNodes },
 
     // Setters
     { "AdvanceSkillsToMax", &LuaPlayer::AdvanceSkillsToMax },
@@ -556,7 +557,6 @@ ElunaRegister<Player> PlayerMethods[] =
     { "SetLifetimeKills", &LuaPlayer::SetLifetimeKills },
     { "SetGameMaster", &LuaPlayer::SetGameMaster },
     { "SetGMChat", &LuaPlayer::SetGMChat },
-    { "GetKnownTaxiNodes", &LuaPlayer::GetKnownTaxiNodes },
     { "SetKnownTaxiNodes", &LuaPlayer::SetKnownTaxiNodes },
     { "SetTaxiCheat", &LuaPlayer::SetTaxiCheat },
     { "SetGMVisible", &LuaPlayer::SetGMVisible },
@@ -784,6 +784,7 @@ ElunaRegister<Creature> CreatureMethods[] =
     { "GetShieldBlockValue", &LuaCreature::GetShieldBlockValue },
     { "GetDBTableGUIDLow", &LuaCreature::GetDBTableGUIDLow },
     { "GetCreatureFamily", &LuaCreature::GetCreatureFamily },
+    { "GetReactState", &LuaCreature::GetReactState },
 
     // Setters
     { "SetRegeneratingHealth", &LuaCreature::SetRegeneratingHealth },
@@ -801,7 +802,6 @@ ElunaRegister<Creature> CreatureMethods[] =
     { "SetNPCFlags", &LuaCreature::SetNPCFlags },
     { "SetUnitFlags", &LuaCreature::SetUnitFlags },
     { "SetUnitFlagsTwo", &LuaCreature::SetUnitFlagsTwo },
-    { "GetReactState", &LuaCreature::GetReactState },
     { "SetReactState", &LuaCreature::SetReactState },
     { "SetDeathState", &LuaCreature::SetDeathState },
     { "SetWalk", &LuaCreature::SetWalk },
