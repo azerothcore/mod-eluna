@@ -842,6 +842,18 @@ namespace LuaCreature
     }
 
     /**
+    * Gets the [Creature]'s current ReactState.
+    *
+    * @return [ReactState] The current react state of the creature.
+    */
+    int GetReactState(lua_State* L, Creature* creature)
+    {
+        ReactStates state = creature->GetReactState();
+        lua_pushinteger(L, (int)state);
+        return 1;
+    }
+
+    /**
      * Sets the [Creature]'s NPC flags to `flags`.
      *
      * @param [NPCFlags] flags
