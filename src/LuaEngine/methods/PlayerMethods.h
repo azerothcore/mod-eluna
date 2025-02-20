@@ -2281,12 +2281,22 @@ namespace LuaPlayer
      * Sends a trainer window to the [Player] from the [Creature] specified
      *
      * @param [Creature] sender
+     * @param uint32 entry : trainer entry
      */
+
     int SendTrainerList(lua_State* L, Player* player)
     {
-        Creature* obj = Eluna::CHECKOBJ<Creature>(L, 2);
+        uint32 entry = Eluna::CHECKVAL<uint32>(L, 3, 0);
 
-        player->GetSession()->SendTrainerList(obj->GET_GUID());
+        if (!entry) {
+            Creature* obj = Eluna::CHECKOBJ<Creature>(L, 2);
+            player->GetSession()->SendTrainerList(obj->GET_GUID());
+        }
+        else {
+            WorldObject* obj = Eluna::CHECKOBJ<WorldObject>(L, 2);
+            player->GetSession()->SendTrainerList(obj->GET_GUID(), entry);
+        }
+
         return 0;
     }
 
