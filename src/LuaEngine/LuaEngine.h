@@ -265,6 +265,7 @@ public:
     static void Push(lua_State* luastate, ObjectGuid const guid);
     static void Push(lua_State* luastate, GemPropertiesEntry const& gemProperties);
     static void Push(lua_State* luastate, SpellEntry const& spell);
+    static void Push(lua_State* luastate, SpellEffectInfo const& spellEffectInfo);
     template<typename T>
     static void Push(lua_State* luastate, T const* ptr)
     {

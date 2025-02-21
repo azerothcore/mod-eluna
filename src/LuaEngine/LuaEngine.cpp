@@ -751,6 +751,11 @@ void Eluna::Push(lua_State* luastate, SpellEntry const& spell)
     Push(luastate, &spell);
 }
 
+void Eluna::Push(lua_State* luastate, SpellEffectInfo const& spellEffectInfo)
+{
+    Push(luastate, &spellEffectInfo);
+}
+
 std::string Eluna::FormatQuery(lua_State* L, const char* query)
 {
     int numArgs = lua_gettop(L);

@@ -30,7 +30,9 @@ extern "C"
 #include "AuraMethods.h"
 #include "ItemMethods.h"
 #include "WorldPacketMethods.h"
+#include "SpellEffectInfoMethods.h"
 #include "SpellMethods.h"
+#include "SpellInfoMethods.h"
 #include "QuestMethods.h"
 #include "MapMethods.h"
 #include "CorpseMethods.h"
@@ -1013,6 +1015,7 @@ ElunaRegister<Spell> SpellMethods[] =
     { "GetReagentCost", &LuaSpell::GetReagentCost },
     { "GetTargetDest", &LuaSpell::GetTargetDest },
     { "GetTarget", &LuaSpell::GetTarget },
+    { "GetSpellInfo", &LuaSpell::GetSpellInfo },
 
     // Setters
     { "SetAutoRepeat", &LuaSpell::SetAutoRepeat },
@@ -1541,6 +1544,96 @@ ElunaRegister<SpellEntry> SpellEntryMethods[] =
     { NULL, NULL }
 };
 
+ElunaRegister<SpellEffectInfo> SpellEffectInfoMethods[] =
+{
+    // Getters
+    { "GetMiscValue", &LuaSpellEffectInfo::GetMiscValue },
+    { "GetMiscValueB", &LuaSpellEffectInfo::GetMiscValueB },
+    { "GetEffect", &LuaSpellEffectInfo::GetEffect },
+
+    // Setters
+
+    // Boolean
+
+    // Other
+
+    { NULL, NULL }
+};
+
+ElunaRegister<SpellInfo> SpellInfoMethods[] =
+{
+    // Getters
+    { "GetAttributes", &LuaSpellInfo::GetAttributes },
+    { "GetCategory", &LuaSpellInfo::GetCategory },
+    { "GetName", &LuaSpellInfo::GetName },
+    { "CheckShapeshift", &LuaSpellInfo::CheckShapeshift },
+    { "CheckLocation", &LuaSpellInfo::CheckLocation },
+    { "CheckTarget", &LuaSpellInfo::CheckTarget },
+    { "CheckExplicitTarget", &LuaSpellInfo::CheckExplicitTarget },
+    { "CheckTargetCreatureType", &LuaSpellInfo::CheckTargetCreatureType },
+    { "CheckTargetCreatureType", &LuaSpellInfo::CheckTargetCreatureType },
+    { "GetSchoolMask", &LuaSpellInfo::GetSchoolMask },
+    { "GetAllEffectsMechanicMask", &LuaSpellInfo::GetAllEffectsMechanicMask },
+    { "GetEffectMechanicMask", &LuaSpellInfo::GetEffectMechanicMask },
+    { "GetSpellMechanicMaskByEffectMask", &LuaSpellInfo::GetSpellMechanicMaskByEffectMask },
+    { "GetEffectMechanic", &LuaSpellInfo::GetEffectMechanic },
+    { "GetDispelMask", &LuaSpellInfo::GetDispelMask },
+    { "GetExplicitTargetMask", &LuaSpellInfo::GetExplicitTargetMask },
+    { "GetAuraState", &LuaSpellInfo::GetAuraState },
+    { "GetSpellSpecific", &LuaSpellInfo::GetSpellSpecific },
+    { "GetEffectInfo", &LuaSpellInfo::GetEffectInfo },
+
+    // Setters
+
+    // Boolean
+    { "HasAreaAuraEffect", &LuaSpellInfo::HasAreaAuraEffect },
+    { "HasAttribute", &LuaSpellInfo::HasAttribute },
+    { "HasAura", &LuaSpellInfo::HasAura },
+    { "HasEffect", &LuaSpellInfo::HasEffect },
+
+    { "IsAbilityLearnedWithProfession", &LuaSpellInfo::IsAbilityLearnedWithProfession },
+    { "IsAbilityOfSkillType", &LuaSpellInfo::IsAbilityOfSkillType },
+    { "IsAffectingArea", &LuaSpellInfo::IsAffectingArea },
+    { "IsAllowingDeadTarget", &LuaSpellInfo::IsAllowingDeadTarget },
+    { "IsAutocastable", &LuaSpellInfo::IsAutocastable },
+    { "IsAutoRepeatRangedSpell", &LuaSpellInfo::IsAutoRepeatRangedSpell },
+    { "IsBreakingStealth", &LuaSpellInfo::IsBreakingStealth },
+    { "IsChanneled", &LuaSpellInfo::IsChanneled },
+    { "IsCooldownStartedOnEvent", &LuaSpellInfo::IsCooldownStartedOnEvent },
+    { "IsDeathPersistent", &LuaSpellInfo::IsDeathPersistent },
+    { "IsExplicitDiscovery", &LuaSpellInfo::IsExplicitDiscovery },
+    { "IsLootCrafting", &LuaSpellInfo::IsLootCrafting },
+    { "IsMultiSlotAura", &LuaSpellInfo::IsMultiSlotAura },
+    { "IsPassive", &LuaSpellInfo::IsPassive },
+    { "IsPassiveStackableWithRanks", &LuaSpellInfo::IsPassiveStackableWithRanks },
+    { "IsPositive", &LuaSpellInfo::IsPositive },
+    { "IsPositiveEffect", &LuaSpellInfo::IsPositiveEffect },
+    { "IsPrimaryProfession", &LuaSpellInfo::IsPrimaryProfession },
+    { "IsPrimaryProfessionFirstRank", &LuaSpellInfo::IsPrimaryProfessionFirstRank },
+    { "IsProfession", &LuaSpellInfo::IsProfession },
+    { "IsProfessionOrRiding", &LuaSpellInfo::IsProfessionOrRiding },
+    { "IsRangedWeaponSpell", &LuaSpellInfo::IsRangedWeaponSpell },
+    { "IsRequiringDeadTarget", &LuaSpellInfo::IsRequiringDeadTarget },
+    { "IsStackableWithRanks", &LuaSpellInfo::IsStackableWithRanks },
+    { "IsTargetingArea", &LuaSpellInfo::IsTargetingArea },
+    { "IsAffectedBySpellMods", &LuaSpellInfo::IsAffectedBySpellMods },
+    /* { "IsAffectedBySpellMod", &LuaSpellInfo::IsAffectedBySpellMod }, */
+    { "CanPierceImmuneAura", &LuaSpellInfo::CanPierceImmuneAura },
+    { "CanDispelAura", &LuaSpellInfo::CanDispelAura },
+    { "IsSingleTarget", &LuaSpellInfo::IsSingleTarget },
+    { "IsAuraExclusiveBySpecificWith", &LuaSpellInfo::IsAuraExclusiveBySpecificWith },
+    { "IsAuraExclusiveBySpecificPerCasterWith", &LuaSpellInfo::IsAuraExclusiveBySpecificPerCasterWith },
+    { "CanBeUsedInCombat", &LuaSpellInfo::CanBeUsedInCombat },
+
+    { "NeedsComboPoints", &LuaSpellInfo::NeedsComboPoints },
+    { "NeedsExplicitUnitTarget", &LuaSpellInfo::NeedsExplicitUnitTarget },
+    { "NeedsToBeTriggeredByCaster", &LuaSpellInfo::NeedsToBeTriggeredByCaster },
+
+    // Other
+
+    { NULL, NULL }
+};
+
 // fix compile error about accessing vehicle destructor
 template<> int ElunaTemplate<Vehicle>::CollectGarbage(lua_State* L)
 {
@@ -1697,6 +1790,12 @@ void RegisterFunctions(Eluna* E)
 
     ElunaTemplate<SpellEntry>::Register(E, "SpellEntry");
     ElunaTemplate<SpellEntry>::SetMethods(E, SpellEntryMethods);
+
+    ElunaTemplate<SpellEffectInfo>::Register(E, "SpellEffectInfo");
+    ElunaTemplate<SpellEffectInfo>::SetMethods(E, SpellEffectInfoMethods);
+    
+    ElunaTemplate<SpellInfo>::Register(E, "SpellInfo");
+    ElunaTemplate<SpellInfo>::SetMethods(E, SpellInfoMethods);
 
     ElunaTemplate<long long>::Register(E, "long long", true);
 
