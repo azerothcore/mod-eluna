@@ -1685,7 +1685,7 @@ namespace LuaPlayer
                 {
                     uint8 nodeId = (i * 32) + bit + 1;
                     lua_pushinteger(L, nodeId);
-                    lua_rawseti(L, -2, luaL_len(L, -2) + 1);
+                    lua_rawseti(L, -2, lua_rawlen(L, -2) + 1);
                 }
             }
         }
