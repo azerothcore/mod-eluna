@@ -88,6 +88,14 @@ struct LuaScript
 class ELUNA_GAME_API Eluna
 {
 public:
+    void IncrementCallbacks() { pendingCallbacks++; }
+	void DecrementCallbacks() 
+	{ 
+		pendingCallbacks--; 
+		if (pendingCallbacks == 0 && reloadScheduled)
+			_ReloadEluna();
+	}
+    bool CanReload() const { return pendingCallbacks == 0; }
     typedef std::list<LuaScript> ScriptList;
 
     typedef std::recursive_mutex LockType;
@@ -97,6 +105,8 @@ public:
     const std::string& GetRequireCPath() const { return lua_requirecpath; }
 
 private:
+    std::atomic<int> pendingCallbacks{0};
+    std::atomic<bool> reloadScheduled{false};
     static bool reload;
     static bool initialized;
     static LockType lock;
