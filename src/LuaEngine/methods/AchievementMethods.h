@@ -7,6 +7,11 @@
 #ifndef ACHIEVEMENTMETHODS_H
 #define ACHIEVEMENTMETHODS_H
 
+/***
+ * Represents an entry from the game's achievement database (e.g., achievement earned for completing certain tasks).
+ *
+ * Inherits all methods from: none
+ */
 namespace LuaAchievement
 {
     /**

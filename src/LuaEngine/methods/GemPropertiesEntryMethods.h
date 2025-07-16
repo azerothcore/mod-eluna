@@ -7,6 +7,13 @@
 #ifndef GEMPROPERTIESENTRYMETHODS_H
 #define GEMPROPERTIESENTRYMETHODS_H
 
+/***
+ * Represents static gem data used in item enhancement, including spell enchantments triggered by socketed gems.
+ *
+ * Provides access to gem-related properties from the DBC table `GemProperties.dbc`.
+ *
+ * Inherits all methods from: none
+ */
 namespace LuaGemPropertiesEntry
 {
 

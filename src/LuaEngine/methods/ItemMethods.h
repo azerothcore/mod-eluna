@@ -8,6 +8,8 @@
 #define ITEMMETHODS_H
 
 /***
+ * Represents an instance of an item in the game world.
+ *
  * Inherits all methods from: [Object]
  */
 namespace LuaItem
@@ -298,6 +300,12 @@ namespace LuaItem
         return 1;
     }
 
+    /**
+     * Returns the GUID of the [Player] who owns the specified [Item].
+     *
+     * @param [Item] item
+     * @return uint64 ownerGUID
+     */
     int GetOwnerGUID(lua_State* L, Item* item)
     {
         Eluna::Push(L, item->GetOwnerGUID());
@@ -551,6 +559,12 @@ namespace LuaItem
         return 1;
     }
 
+    /**
+     * Returns the number of stat entries defined on the [Item]'s [ItemTemplate].  This reflects how many stat slots (e.g., Strength, Stamina, etc.) are defined for the item.
+     *
+     * @param [Item] item
+     * @return uint32 statsCount
+     */
     int GetStatsCount(lua_State* L, Item* item)
     {
         Eluna::Push(L, item->GetTemplate()->StatsCount);
@@ -568,6 +582,12 @@ namespace LuaItem
         return 1;
     }
 
+    /**
+     * Returns the random suffix ID of the specified [Item].  This corresponds to the `RandomSuffix` field from the item's [ItemTemplate], which controls the applied suffix (e.g., "of the Bear", "of the Eagle").
+     *
+     * @param [Item] item
+     * @return uint32 randomSuffixId
+     */
     int GetRandomSuffix(lua_State* L, Item* item)
     {
         Eluna::Push(L, item->GetTemplate()->RandomSuffix);

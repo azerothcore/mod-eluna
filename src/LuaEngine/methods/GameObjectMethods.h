@@ -8,6 +8,8 @@
 #define GAMEOBJECTMETHODS_H
 
 /***
+ * Represents a game object in the world, such as doors, chests, and other interactive objects.
+ *
  * Inherits all methods from: [Object], [WorldObject]
  */
 namespace LuaGameObject

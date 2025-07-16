@@ -531,6 +531,13 @@ namespace LuaPlayer
         return 1;
     }
 
+    /**
+     * Returns `true` if the [Player] is in the same group and visible to the specified [Player], `false` otherwise.
+     *
+     * @param [Player] player : the source player
+     * @param [Player] target : the player to check visibility from
+     * @return bool isGroupVisible
+     */
     int IsGroupVisibleFor(lua_State* L, Player* player)
     {
         Player* target = Eluna::CHECKOBJ<Player>(L, 2);
@@ -592,6 +599,12 @@ namespace LuaPlayer
         return 1;
     }
 
+    /**
+     * Returns `true` if the [Player] is currently visible to other players, `false` if hidden via GM invisibility.
+     *
+     * @param [Player] player
+     * @return bool isVisible
+     */
     int IsGMVisible(lua_State* L, Player* player)
     {
         Eluna::Push(L, player->isGMVisible());
@@ -609,6 +622,12 @@ namespace LuaPlayer
         return 1;
     }
 
+    /**
+     * Returns `true` if the [Player] has GM chat enabled, `false` otherwise.
+     *
+     * @param [Player] player
+     * @return bool isGMChat
+     */
     int IsGMChat(lua_State* L, Player* player)
     {
         Eluna::Push(L, player->isGMChat());
@@ -3123,6 +3142,12 @@ namespace LuaPlayer
         return 1;
     }
 
+    /**
+     * Adds a specified number of lifetime honorable kills to the [Player].
+     *
+     * @param [Player] player
+     * @param uint32 kills
+     */
     int AddLifetimeKills(lua_State* L, Player* player)
     {
         uint32 val = Eluna::CHECKVAL<uint32>(L, 2);
@@ -3417,9 +3442,10 @@ namespace LuaPlayer
     }
 
     /**
-    * Get glyphId of the glyph slot specified by `slotIndex` off the [Player]'s current talent specialization.`
-    * @param uint32 slotIndex
-    * @return glyphId of the glyph in the selected glyph slot or 0 in case the glyph slot is empty
+    * Returns the glyph ID in the specified glyph slot of the [Player]'s current talent specialization.
+    *
+    * @param [uint32] slotIndex
+    * @return [uint32] glyphId
     */
     int GetGlyph(lua_State* L, Player* player)
     {
