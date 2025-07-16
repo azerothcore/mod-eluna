@@ -105,7 +105,6 @@ namespace LuaGlobalFunctions
      * - for TrinityCore returns the realmID as it is in the conf file.
      * @return uint32 realm ID
      */
-
     int GetRealmID(lua_State* L)
     {
         Eluna::Push(L, sConfigMgr->GetOption<uint32>("RealmID", 1));
@@ -362,6 +361,12 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
+    /**
+    * Returns the [ItemTemplate] for the specified item ID.  The ItemTemplate contains all static data about an item, such as name, quality, stats, required level, and more.
+    *
+    * @param uint32 itemID : the item entry ID from `item_template` to look up
+    * @return [ItemTemplate] itemTemplate
+    */
     int GetItemTemplate(lua_State* L)
     {
         uint32 entry = Eluna::CHECKVAL<uint32>(L, 1);
