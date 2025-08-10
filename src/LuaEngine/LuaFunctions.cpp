@@ -784,7 +784,6 @@ ElunaRegister<Player> PlayerMethods[] =
     { "SendMovieStart", &LuaPlayer::SendMovieStart },
     { "UpdatePlayerSetting", &LuaPlayer::UpdatePlayerSetting },
     { "TeleportTo", &LuaPlayer::TeleportTo },
-    { "UpdateSkill", &LuaPlayer::UpdateSkill },
     { "SetPlayerFlag", &LuaPlayer::SetPlayerFlag },
     { "RemovePlayerFlag", &LuaPlayer::RemovePlayerFlag },
     { "DoRandomRoll", &LuaPlayer::DoRandomRoll },
