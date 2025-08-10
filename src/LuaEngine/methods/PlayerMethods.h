@@ -4014,21 +4014,6 @@ namespace LuaPlayer
     }
 
     /**
-     * Updates a skill for the [Player] and advances it by the specified step.
-     *
-     * @param uint32 skillId : the skill to update
-     * @param uint32 step : the step to advance the skill by
-     * @return bool success : true if the skill was updated successfully
-     */
-    int UpdateSkill(lua_State* L, Player* player)
-    {
-        uint32 skillId = Eluna::CHECKVAL<uint32>(L, 2);
-        uint32 step = Eluna::CHECKVAL<uint32>(L, 3);
-        Eluna::Push(L, player->UpdateSkill(skillId, step));
-        return 1;
-    }
-
-    /**
      * Sets the specified player flag on the [Player].
      *
      * @param uint32 flag : the player flag to set
