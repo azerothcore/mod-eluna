@@ -30,6 +30,7 @@ private:
     void ScanDirectory(const std::string& path);
     void CheckForChanges();
     bool ShouldReloadFile(const std::string& filepath);
+    bool IsWatchedFileType(const std::string& filename);
 
     std::thread watcherThread;
     std::atomic<bool> running;
