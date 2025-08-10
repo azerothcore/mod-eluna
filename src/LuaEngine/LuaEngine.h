@@ -23,6 +23,7 @@
 #include "HttpManager.h"
 #include "EventEmitter.h"
 #include "TicketMgr.h"
+#include "ElunaFileWatcher.h"
 #include <mutex>
 #include <memory>
 
@@ -100,6 +101,7 @@ private:
     static bool reload;
     static bool initialized;
     static LockType lock;
+    static std::unique_ptr<ElunaFileWatcher> fileWatcher;
 
     // Lua script locations
     static ScriptList lua_scripts;
