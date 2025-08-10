@@ -75,6 +75,12 @@ void ElunaFileWatcher::WatchLoop()
     }
 }
 
+bool ElunaFileWatcher::IsWatchedFileType(const std::string& filename) {
+    return filename.ends_with(".lua") ||
+        filename.ends_with(".ext") ||
+        filename.ends_with(".moon");
+}
+
 void ElunaFileWatcher::ScanDirectory(const std::string& path)
 {
     try
@@ -98,7 +104,7 @@ void ElunaFileWatcher::ScanDirectory(const std::string& path)
             {
                 std::string filename = dir_iter->path().filename().generic_string();
                 
-                if (filename.length() > 4 && filename.substr(filename.length() - 4) == ".lua")
+                if (IsWatchedFileType(filename))
                 {
                     fileTimestamps[fullpath] = boost::filesystem::last_write_time(dir_iter->path());
                 }
@@ -181,9 +187,8 @@ bool ElunaFileWatcher::ShouldReloadFile(const std::string& filepath)
             return false;
             
         std::string filename = file.filename().generic_string();
-        
-        if (filename.length() <= 4 || filename.substr(filename.length() - 4) != ".lua")
-            return false;
+
+        if (!IsWatchedFileType(filename)) return false;
             
         auto currentTime = boost::filesystem::last_write_time(file);
         auto it = fileTimestamps.find(filepath);
