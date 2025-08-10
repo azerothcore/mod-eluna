@@ -40,6 +40,7 @@ extern "C"
 #include "AchievementMethods.h"
 #include "ItemTemplateMethods.h"
 #include "RollMethods.h"
+#include "TicketMethods.h"
 #include "SpellInfoMethods.h"
 
 // DBCStores includes
@@ -65,6 +66,7 @@ luaL_Reg GlobalMethods[] =
     { "RegisterBGEvent", &LuaGlobalFunctions::RegisterBGEvent },
     { "RegisterMapEvent", &LuaGlobalFunctions::RegisterMapEvent },
     { "RegisterInstanceEvent", &LuaGlobalFunctions::RegisterInstanceEvent },
+    { "RegisterTicketEvent", &LuaGlobalFunctions::RegisterTicketEvent },
     { "RegisterSpellEvent", &LuaGlobalFunctions::RegisterSpellEvent },
 
     { "ClearBattleGroundEvents", &LuaGlobalFunctions::ClearBattleGroundEvents },
@@ -83,6 +85,7 @@ luaL_Reg GlobalMethods[] =
     { "ClearServerEvents", &LuaGlobalFunctions::ClearServerEvents },
     { "ClearMapEvents", &LuaGlobalFunctions::ClearMapEvents },
     { "ClearInstanceEvents", &LuaGlobalFunctions::ClearInstanceEvents },
+    { "ClearTicketEvents", &LuaGlobalFunctions::ClearTicketEvents },
     { "ClearSpellEvents", &LuaGlobalFunctions::ClearSpellEvents },
 
     // Getters
@@ -927,6 +930,8 @@ ElunaRegister<Item> ItemMethods[] =
     { "SetOwner", &LuaItem::SetOwner },
     { "SetBinding", &LuaItem::SetBinding },
     { "SetCount", &LuaItem::SetCount },
+    { "SetRandomProperty", &LuaItem::SetRandomProperty },
+    { "SetRandomSuffix", &LuaItem::SetRandomSuffix },
 
     // Boolean
     { "IsSoulBound", &LuaItem::IsSoulBound },
@@ -1329,6 +1334,39 @@ ElunaRegister<Roll> RollMethods[] =
     { NULL, NULL }
 };
 
+ElunaRegister<GmTicket> TicketMethods[] =
+{
+    { "IsClosed", &LuaTicket::IsClosed },
+    { "IsCompleted", &LuaTicket::IsCompleted },
+    { "IsFromPlayer", &LuaTicket::IsFromPlayer },
+    { "IsAssigned", &LuaTicket::IsAssigned },
+    { "IsAssignedTo", &LuaTicket::IsAssignedTo },
+    { "IsAssignedNotTo", &LuaTicket::IsAssignedNotTo },
+
+    { "GetId", &LuaTicket::GetId },
+    { "GetPlayer", &LuaTicket::GetPlayer },
+    { "GetPlayerName", &LuaTicket::GetPlayerName },
+    { "GetMessage", &LuaTicket::GetMessage },
+    { "GetAssignedPlayer", &LuaTicket::GetAssignedPlayer },
+    { "GetAssignedToGUID", &LuaTicket::GetAssignedToGUID },
+    { "GetLastModifiedTime", &LuaTicket::GetLastModifiedTime },
+    { "GetResponse", &LuaTicket::GetResponse },
+    { "GetChatLog", &LuaTicket::GetChatLog },
+
+    { "SetAssignedTo", &LuaTicket::SetAssignedTo },
+    { "SetResolvedBy", &LuaTicket::SetResolvedBy },
+    { "SetCompleted", &LuaTicket::SetCompleted },
+    { "SetMessage", &LuaTicket::SetMessage },
+    { "SetComment", &LuaTicket::SetComment },
+    { "SetViewed", &LuaTicket::SetViewed },
+    { "SetUnassigned", &LuaTicket::SetUnassigned },
+    { "SetPosition", &LuaTicket::SetPosition },
+    { "AppendResponse", &LuaTicket::AppendResponse },
+    { "DeleteResponse", &LuaTicket::DeleteResponse },
+  
+    { NULL, NULL }
+};
+
 ElunaRegister<SpellInfo> SpellInfoMethods[] =
 {
     // Getters
@@ -1653,6 +1691,9 @@ void RegisterFunctions(Eluna* E)
     ElunaTemplate<Roll>::Register(E, "Roll");
     ElunaTemplate<Roll>::SetMethods(E, RollMethods);
 
+    ElunaTemplate<GmTicket>::Register(E, "Ticket");
+    ElunaTemplate<GmTicket>::SetMethods(E, TicketMethods);
+  
     ElunaTemplate<SpellInfo>::Register(E, "SpellInfo");
     ElunaTemplate<SpellInfo>::SetMethods(E, SpellInfoMethods);
 

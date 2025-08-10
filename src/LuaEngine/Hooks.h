@@ -86,6 +86,7 @@ namespace Hooks
         REGTYPE_BG,
         REGTYPE_MAP,
         REGTYPE_INSTANCE,
+        REGTYPE_TICKET,
         REGTYPE_SPELL,
         REGTYPE_COUNT
     };
@@ -222,6 +223,9 @@ namespace Hooks
         PLAYER_EVENT_ON_BG_DESERTION            =     57,       // (event, player, type)
         PLAYER_EVENT_ON_PET_KILL                =     58,       // (event, player, killer)
         PLAYER_EVENT_ON_CAN_RESURRECT           =     59,       // (event, player)
+        PLAYER_EVENT_ON_CAN_UPDATE_SKILL        =     60,       // (event, player, skill_id) -- Can return true or false
+        PLAYER_EVENT_ON_BEFORE_UPDATE_SKILL     =     61,       // (event, player, skill_id, value, max, step) -- Can return new amount
+        PLAYER_EVENT_ON_UPDATE_SKILL            =     62,       // (event, player, skill_id, value, max, step, new_value)
 
         PLAYER_EVENT_COUNT
     };
@@ -368,6 +372,15 @@ namespace Hooks
         INSTANCE_EVENT_COUNT
     };
 
+    enum TicketEvents
+    {
+        TICKET_EVENT_ON_CREATE                          = 1,    // (event, ticket)
+        TICKET_EVENT_UPDATE_LAST_CHANGE                 = 2,    // (event, ticket, message)
+        TICKET_EVENT_ON_CLOSE                           = 3,    // (event, ticket)
+        TICKET_EVENT_ON_RESOLVE                         = 4,    // (event, ticket)
+        TICKET_EVENT_COUNT
+    };
+  
     enum SpellEvents
     {
         SPELL_EVENT_ON_PREPARE                          = 1, // (event, caster, spell)
