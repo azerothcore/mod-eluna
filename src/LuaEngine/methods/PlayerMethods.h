@@ -1938,9 +1938,7 @@ namespace LuaPlayer
             return 0;
     
         if (!lua_istable(L, 2))
-        {
             return 0;
-        }
     
         lua_pushnil(L);
     
@@ -1949,9 +1947,7 @@ namespace LuaPlayer
             uint32 nodeId = luaL_checkinteger(L, -1);
     
             if (nodeId > 0) 
-            {
                 player->m_taxi.SetTaximaskNode(nodeId);
-            }
     
             lua_pop(L, 1);
         }
