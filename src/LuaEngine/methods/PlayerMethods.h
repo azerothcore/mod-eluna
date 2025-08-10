@@ -1660,10 +1660,10 @@ namespace LuaPlayer
     }
 
     /**
-    * Returns known taxi nodes (flight paths) that the player has unlocked.
-    *
-    * @return table<int> A table containing the IDs of the known taxi nodes.
-    */
+     * Returns known taxi nodes (flight paths) that the player has unlocked.
+     *
+     * @return table nodes : A table containing the IDs of the known taxi nodes
+     */
     int GetKnownTaxiNodes(lua_State* L, Player* player)
     {
         if (!player)
@@ -1928,10 +1928,10 @@ namespace LuaPlayer
     }
 
     /**
-    * Sets the player's known taxi nodes (flight paths).
-    *
-    * @param table<int> A table containing the taxi node IDs to set as known.
-    */
+     * Sets the player's known taxi nodes (flight paths).
+     *
+     * @param table nodes : A table containing the taxi node IDs to set as known
+     */
     int SetKnownTaxiNodes(lua_State* L, Player* player)
     {
         if (!player)

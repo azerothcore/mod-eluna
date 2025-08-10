@@ -842,10 +842,19 @@ namespace LuaCreature
     }
 
     /**
-    * Gets the [Creature]'s current ReactState.
-    *
-    * @return [ReactState] The current react state of the creature.
-    */
+     * Returns the [Creature]'s current ReactState.
+     *
+     * <pre>
+     * enum ReactState
+     * {
+     *     REACT_PASSIVE       = 0,
+     *     REACT_DEFENSIVE     = 1,
+     *     REACT_AGGRESSIVE    = 2
+     * };
+     * </pre>
+     *
+     * @return [ReactState] state
+     */
     int GetReactState(lua_State* L, Creature* creature)
     {
         ReactStates state = creature->GetReactState();
