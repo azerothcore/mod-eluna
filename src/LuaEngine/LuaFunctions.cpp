@@ -975,6 +975,8 @@ ElunaRegister<Item> ItemMethods[] =
     { "SetOwner", &LuaItem::SetOwner },
     { "SetBinding", &LuaItem::SetBinding },
     { "SetCount", &LuaItem::SetCount },
+    { "SetRandomProperty", &LuaItem::SetRandomProperty },
+    { "SetRandomSuffix", &LuaItem::SetRandomSuffix },
 
     // Boolean
     { "IsSoulBound", &LuaItem::IsSoulBound },
