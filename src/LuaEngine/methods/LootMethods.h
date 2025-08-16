@@ -91,7 +91,7 @@ namespace LuaLoot
         {
             for (const LootItem &lootitem : loot->items)
             {
-                if (lootitem.itemid && lootitem.itemid != 0)
+                if (lootitem.itemid != 0)
                 {
                     has_item = true;
                     break;
@@ -115,7 +115,7 @@ namespace LuaLoot
     int RemoveItem(lua_State* L, Loot* loot)
     {
         uint32 itemid = Eluna::CHECKVAL<uint32>(L, 2);
-        bool isCountSpecified = Eluna::CHECKVAL<uint32>(L, 3, false);
+        bool isCountSpecified = Eluna::CHECKVAL<bool>(L, 3, false);
         uint32 count = isCountSpecified ? Eluna::CHECKVAL<uint32>(L, 4) : 0;
 
         for (auto it = loot->items.begin(); it != loot->items.end();)
@@ -283,7 +283,7 @@ namespace LuaLoot
     {
         uint32 itemid = Eluna::CHECKVAL<uint32>(L, 2);
         uint32 count = Eluna::CHECKVAL<uint32>(L, 3);
-        bool looted = Eluna::CHECKVAL<uint32>(L, 4, true);
+        bool looted = Eluna::CHECKVAL<bool>(L, 4, true);
 
         for (auto &lootItem : loot->items)
         {
@@ -293,6 +293,230 @@ namespace LuaLoot
                 break;
             }
         }
+        return 0;
+    }
+
+    /**
+     * Returns `true` if the [Loot] is completely empty (no items and no money), returns `false` otherwise.
+     *
+     * @return bool isEmpty
+     */
+    int IsEmpty(lua_State* L, Loot* loot)
+    {
+        Eluna::Push(L, loot->empty());
+        return 1;
+    }
+
+    /**
+     * Returns the [Loot] type.
+     *
+     * @return [LootType] lootType
+     */
+    int GetLootType(lua_State* L, Loot* loot)
+    {
+        Eluna::Push(L, loot->loot_type);
+        return 1;
+    }
+
+    /**
+     * Sets the [Loot] type.
+     *
+     * <pre>
+     * enum LootType
+     * {
+     *     LOOT_NONE                           = 0,
+     *     LOOT_CORPSE                         = 1,
+     *     LOOT_PICKPOCKETING                  = 2,
+     *     LOOT_FISHING                        = 3,
+     *     LOOT_DISENCHANTING                  = 4,
+     *     LOOT_SKINNING                       = 6,
+     *     LOOT_PROSPECTING                    = 7,
+     *     LOOT_MILLING                        = 8,
+     *     LOOT_FISHINGHOLE                    = 20,
+     *     LOOT_INSIGNIA                       = 21,
+     *     LOOT_FISHING_JUNK                   = 22
+     * };
+     * </pre>
+     *
+     * @param [LootType] lootType : the loot type to set
+     */
+    int SetLootType(lua_State* L, Loot* loot)
+    {
+        uint32 lootType = Eluna::CHECKVAL<uint32>(L, 2);
+        loot->loot_type = static_cast<LootType>(lootType);
+        return 0;
+    }
+
+    /**
+     * Returns the [Player] GUID that owns this loot for round robin distribution.
+     *
+     * @return ObjectGUID roundRobinPlayer : the player GUID
+     */
+    int GetRoundRobinPlayer(lua_State* L, Loot* loot)
+    {
+        Eluna::Push(L, loot->roundRobinPlayer);
+        return 1;
+    }
+
+    /**
+     * Sets the [Player] GUID for round robin loot distribution.
+     *
+     * @param ObjectGuid playerGUID : the player GUID
+     */
+    int SetRoundRobinPlayer(lua_State* L, Loot* loot)
+    {
+        ObjectGuid guid = Eluna::CHECKVAL<ObjectGuid>(L, 2);
+        loot->roundRobinPlayer = guid;
+        return 0;
+    }
+
+    /**
+     * Returns the [Player] GUID that owns this loot.
+     *
+     * @return ObjectGuid lootOwner : the player GUID
+     */
+    int GetLootOwner(lua_State* L, Loot* loot)
+    {
+        Eluna::Push(L, loot->lootOwnerGUID);
+        return 1;
+    }
+
+    /**
+     * Sets the [Player] GUID that owns this loot.
+     *
+     * @param ObjectGuid playerGUID : the player GUID
+     */
+    int SetLootOwner(lua_State* L, Loot* loot)
+    {
+        ObjectGuid guid = Eluna::CHECKVAL<ObjectGuid>(L, 2);
+        loot->lootOwnerGUID = guid;
+        return 0;
+    }
+
+    /**
+     * Returns the container GUID that holds this loot.
+     *
+     * @return ObjectGuid containerGUID : the container GUID
+     */
+    int GetContainer(lua_State* L, Loot* loot)
+    {
+        Eluna::Push(L, loot->containerGUID);
+        return 1;
+    }
+
+    /**
+     * Sets the container GUID that holds this loot.
+     *
+     * @param ObjectGuid containerGUID : the container GUID
+     */
+    int SetContainer(lua_State* L, Loot* loot)
+    {
+        ObjectGuid guid = Eluna::CHECKVAL<ObjectGuid>(L, 2);
+        loot->containerGUID = guid;
+        return 0;
+    }
+
+    /**
+     * Returns the source [WorldObject] GUID for this loot.
+     *
+     * @return ObjectGuid sourceGUID : the source [WorldObject] GUID
+     */
+    int GetSourceWorldObject(lua_State* L, Loot* loot)
+    {
+        Eluna::Push(L, loot->sourceWorldObjectGUID);
+        return 1;
+    }
+
+    /**
+     * Sets the source [WorldObject] GUID for this loot.
+     *
+     * @param ObjectGuid sourceGUID : the source [WorldObject] GUID
+     */
+    int SetSourceWorldObject(lua_State* L, Loot* loot)
+    {
+        ObjectGuid guid = Eluna::CHECKVAL<ObjectGuid>(L, 2);
+        loot->sourceWorldObjectGUID = guid;
+        return 0;
+    }
+
+    /**
+     * Returns `true` if the [Loot] contains quest items and returns `false` otherwise.
+     *
+     * @return bool hasQuestItems
+     */
+    int HasQuestItems(lua_State* L, Loot* loot)
+    {
+        Eluna::Push(L, !loot->quest_items.empty());
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Loot] has items available for all players and returns `false` otherwise.
+     *
+     * @return bool hasItemForAll
+     */
+    int HasItemForAll(lua_State* L, Loot* loot)
+    {
+        Eluna::Push(L, loot->hasItemForAll());
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Loot] has items that are over the group loot threshold and returns `false` otherwise.
+     *
+     * @return bool hasOverThresholdItem
+     */
+    int HasOverThresholdItem(lua_State* L, Loot* loot)
+    {
+        Eluna::Push(L, loot->hasOverThresholdItem());
+        return 1;
+    }
+
+    /**
+     * Returns the total number of items (regular + quest items) in this [Loot].
+     *
+     * @return uint32 itemCount
+     */
+    int GetItemCount(lua_State* L, Loot* loot)
+    {
+        Eluna::Push(L, static_cast<uint32>(loot->items.size() + loot->quest_items.size()));
+        return 1;
+    }
+
+    /**
+     * Returns the maximum loot slot index available for the specified [Player].
+     *
+     * @param [Player] player : the player to check slots for
+     * @return uint32 maxSlot
+     */
+    int GetMaxSlotForPlayer(lua_State* L, Loot* loot)
+    {
+        Player* player = Eluna::CHECKOBJ<Player>(L, 2);
+        Eluna::Push(L, loot->GetMaxSlotInLootFor(player));
+        return 1;
+    }
+
+    /**
+     * Adds a [Player] to the list of players currently looting this [Loot].
+     *
+     * @param [Player] player : the player to add as a looter
+     */
+    int AddLooter(lua_State* L, Loot* loot)
+    {
+        Player* player = Eluna::CHECKOBJ<Player>(L, 2);
+        loot->AddLooter(player->GetGUID());
+        return 0;
+    }
+
+    /**
+     * Removes a [Player] from the list of players currently looting this [Loot].
+     *
+     * @param [Player] player : the player to remove from looters
+     */
+    int RemoveLooter(lua_State* L, Loot* loot)
+    {
+        Player* player = Eluna::CHECKOBJ<Player>(L, 2);
+        loot->RemoveLooter(player->GetGUID());
         return 0;
     }
 };
