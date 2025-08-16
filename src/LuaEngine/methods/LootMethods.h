@@ -8,16 +8,37 @@
 #define LOOTMETHODS_H
 
 /***
+ * Represents loot that can be obtained from various sources like creatures, gameobjects, or items.
+ * 
+ * Contains information about items that can be looted, their quantities, money, and loot state.
+ *
  * Inherits all methods from: none
  */
 namespace LuaLoot
 {
+    /**
+     * Returns `true` if all loot has been taken from this [Loot], returns `false` otherwise.
+     *
+     * @return bool isLooted
+     */
     int IsLooted(lua_State* L, Loot* loot)
     {
         Eluna::Push(L, loot->isLooted());
         return 1;
     }
 
+    /**
+     * Adds an item to the [Loot] with the specified parameters.
+     *
+     * If an item with the same ID already exists and its count is less than 255, the count will be increased instead of adding a new entry.
+     *
+     * @param uint32 itemId : the ID of the item to add
+     * @param uint8 minCount : minimum count of the item
+     * @param uint8 maxCount : maximum count of the item
+     * @param float chance : chance for the item to drop (0-100)
+     * @param uint16 lootMode : loot mode for the item
+     * @param bool needsQuest = false : if `true`, the item requires a quest to be looted
+     */
     int AddItem(lua_State* L, Loot* loot)
     {
         uint32 itemid = Eluna::CHECKVAL<uint32>(L, 2);
@@ -42,6 +63,13 @@ namespace LuaLoot
         return 0;
     }
 
+    /**
+     * Returns `true` if the [Loot] contains the specified item, and returns `false` otherwise.
+     *
+     * @param uint32 itemId = 0 : the ID of the item to check for. If 0, checks if any item exists
+     * @param uint32 count = 0 : specific count to check for. If 0, ignores count
+     * @return bool hasItem
+     */
     int HasItem(lua_State* L, Loot* loot)
     {
         uint32 itemid = Eluna::CHECKVAL<uint32>(L, 2, false);
@@ -75,6 +103,15 @@ namespace LuaLoot
         return 1;
     }
 
+    /**
+     * Removes the specified item from the [Loot].
+     *
+     * If count is specified, removes only that amount. Otherwise removes all items with the ID.
+     *
+     * @param uint32 itemId : the ID of the item to remove
+     * @param bool isCountSpecified = false : if `true`, only removes the specified count
+     * @param uint32 count = 0 : amount to remove when isCountSpecified is true
+     */
     int RemoveItem(lua_State* L, Loot* loot)
     {
         uint32 itemid = Eluna::CHECKVAL<uint32>(L, 2);
@@ -107,12 +144,22 @@ namespace LuaLoot
         return 0;
     }
 
+    /**
+     * Returns the amount of money in this [Loot].
+     *
+     * @return uint32 money : the amount of money in copper
+     */
     int GetMoney(lua_State* L, Loot* loot)
     {
         Eluna::Push(L, loot->gold);
         return 1;
     }
 
+    /**
+     * Sets the amount of money in this [Loot].
+     *
+     * @param uint32 money : the amount of money to set in copper
+     */
     int SetMoney(lua_State* L, Loot* loot)
     {
         uint32 gold = Eluna::CHECKVAL<uint32>(L, 2);
@@ -121,6 +168,12 @@ namespace LuaLoot
         return 0;
     }
 
+    /**
+     * Generates a random amount of money for this [Loot] within the specified range.
+     *
+     * @param uint32 minGold : minimum amount of money in copper
+     * @param uint32 maxGold : maximum amount of money in copper
+     */
     int GenerateMoney(lua_State* L, Loot* loot)
     {
         uint32 min_gold = Eluna::CHECKVAL<uint32>(L, 2);
@@ -130,12 +183,20 @@ namespace LuaLoot
         return 0;
     }
 
+    /**
+     * Clears all items and money from this [Loot].
+     */
     int Clear(lua_State* /*L*/, Loot* loot)
     {
         loot->clear();
         return 0;
     }
 
+    /**
+     * Sets the number of unlooted items in this [Loot].
+     *
+     * @param uint32 count : the number of unlooted items
+     */
     int SetUnlootedCount(lua_State* L, Loot* loot)
     {
         uint32 count = Eluna::CHECKVAL<uint32>(L, 2);
@@ -144,12 +205,29 @@ namespace LuaLoot
         return 0;
     }
 
+    /**
+     * Returns the number of unlooted items in this [Loot].
+     *
+     * @return uint32 unlootedCount
+     */
     int GetUnlootedCount(lua_State* L, Loot* loot)
     {
         Eluna::Push(L, loot->unlootedCount);
         return 1;
     }
 
+    /**
+     * Returns a table containing all items in this [Loot].
+     *
+     * Each item is represented as a table with the following fields:
+     *   - id: item ID
+     *   - index: item index in the loot list
+     *   - count: quantity of the item
+     *   - needs_quest: whether the item requires a quest
+     *   - is_looted: whether the item has been looted
+     *
+     * @return table items : array of item tables
+     */
     int GetItems(lua_State* L, Loot* loot)
     {
         lua_createtable(L, loot->items.size(), 0);
@@ -181,6 +259,11 @@ namespace LuaLoot
         return 1;
     }
 
+    /**
+     * Updates the index of all items in this [Loot] to match their position in the list.
+     *
+     * This should be called after removing items to ensure indices are sequential.
+     */
     int UpdateItemIndex(lua_State* /*L*/, Loot* loot)
     {
         for (unsigned int i = 0; i < loot->items.size(); i++)
@@ -189,6 +272,13 @@ namespace LuaLoot
         return 0;
     }
 
+    /**
+     * Sets the looted status of a specific item in this [Loot].
+     *
+     * @param uint32 itemId : the ID of the item
+     * @param uint32 count : specific count to match. If 0, ignores count
+     * @param bool looted = true : `true` to mark as looted, `false` to mark as unlooted
+     */
     int SetItemLooted(lua_State* L, Loot* loot)
     {
         uint32 itemid = Eluna::CHECKVAL<uint32>(L, 2);
