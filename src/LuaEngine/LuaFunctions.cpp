@@ -42,6 +42,7 @@ extern "C"
 #include "RollMethods.h"
 #include "TicketMethods.h"
 #include "SpellInfoMethods.h"
+#include "LootMethods.h"
 
 // DBCStores includes
 #include "GemPropertiesEntryMethods.h"
@@ -788,6 +789,7 @@ ElunaRegister<Creature> CreatureMethods[] =
     { "GetDBTableGUIDLow", &LuaCreature::GetDBTableGUIDLow },
     { "GetCreatureFamily", &LuaCreature::GetCreatureFamily },
     { "GetReactState", &LuaCreature::GetReactState },
+    { "GetLoot", &LuaCreature::GetLoot },
 
     // Setters
     { "SetRegeneratingHealth", &LuaCreature::SetRegeneratingHealth },
@@ -1544,6 +1546,29 @@ ElunaRegister<SpellEntry> SpellEntryMethods[] =
     { "GetEffectBonusMultiplier", &LuaSpellEntry::GetEffectBonusMultiplier },
 
     { NULL, NULL }
+};
+
+ElunaRegister<Loot> LootMethods[] =
+{
+    // Get
+    {"GetMoney", &LuaLoot::GetMoney},
+    {"GetItems", &LuaLoot::GetItems},
+    {"GetUnlootedCount", &LuaLoot::GetUnlootedCount},
+
+    // Set
+    {"AddItem", &LuaLoot::AddItem},
+    {"RemoveItem", &LuaLoot::RemoveItem},
+    {"SetMoney", &LuaLoot::SetMoney},
+    {"SetUnlootedCount", &LuaLoot::SetUnlootedCount},
+    {"UpdateItemIndex", &LuaLoot::UpdateItemIndex},
+    {"SetItemLooted", &LuaLoot::SetItemLooted},
+
+    // Boolean
+    {"IsLooted", &LuaLoot::IsLooted},
+    {"HasItem", &LuaLoot::HasItem},
+    {"Clear", &LuaLoot::Clear},
+
+    {NULL, NULL}
 };
 
 // fix compile error about accessing vehicle destructor
