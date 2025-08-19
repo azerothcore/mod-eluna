@@ -174,9 +174,9 @@ namespace LuaPacket
     }
 
     /**
-     * Reads and returns an unsigned 16-bit integer value from the [WorldPacket].
+     * Reads and returns an unsigned 64-bit integer value from the [WorldPacket].
      *
-     * @return Packed ObjectGuid value : value returned as string
+     * @return uint64 value : value returned as string
      */
     int ReadPackedGUID(lua_State* L, WorldPacket* packet)
     {
