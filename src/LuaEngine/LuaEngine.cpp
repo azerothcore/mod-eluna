@@ -417,10 +417,10 @@ bool Eluna::CompileScriptToGlobalCache(const std::string& filepath)
     cacheEntry.bytecode.reserve(1024);
 
     struct BytecodeWriter {
-        std::vector<char>* buffer;
+        BytecodeBuffer* buffer;
         static int writer(lua_State*, const void* p, size_t sz, void* ud) {
             BytecodeWriter* w = static_cast<BytecodeWriter*>(ud);
-            const char* bytes = static_cast<const char*>(p);
+            const uint8* bytes = static_cast<const uint8*>(p);
             w->buffer->insert(w->buffer->end(), bytes, bytes + sz);
             return 0;
         }
@@ -475,10 +475,10 @@ bool Eluna::CompileMoonScriptToGlobalCache(const std::string& filepath)
     cacheEntry.bytecode.reserve(2048);
 
     struct BytecodeWriter {
-        std::vector<char>* buffer;
+        BytecodeBuffer* buffer;
         static int writer(lua_State*, const void* p, size_t sz, void* ud) {
             BytecodeWriter* w = static_cast<BytecodeWriter*>(ud);
-            const char* bytes = static_cast<const char*>(p);
+            const uint8* bytes = static_cast<const uint8*>(p);
             w->buffer->insert(w->buffer->end(), bytes, bytes + sz);
             return 0;
         }
@@ -511,7 +511,7 @@ int Eluna::TryLoadFromGlobalCache(lua_State* L, const std::string& filepath)
     if (it->second.last_modified != currentModTime || currentModTime == 0)
         return LUA_ERRFILE;
     
-    return luaL_loadbuffer(L, it->second.bytecode.data(), it->second.bytecode.size(), filepath.c_str());
+    return luaL_loadbuffer(L, reinterpret_cast<const char*>(it->second.bytecode.data()), it->second.bytecode.size(), filepath.c_str());
 }
 
 int Eluna::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool isMoonScript, uint32* compiledCount, uint32* cachedCount)
@@ -538,7 +538,7 @@ int Eluna::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool i
             auto it = globalBytecodeCache.find(filepath);
             if (it != globalBytecodeCache.end() && !it->second.bytecode.empty())
             {
-                result = luaL_loadbuffer(L, it->second.bytecode.data(), it->second.bytecode.size(), filepath.c_str());
+                result = luaL_loadbuffer(L, reinterpret_cast<const char*>(it->second.bytecode.data()), it->second.bytecode.size(), filepath.c_str());
                 if (result == LUA_OK)
                     return LUA_OK;
             }

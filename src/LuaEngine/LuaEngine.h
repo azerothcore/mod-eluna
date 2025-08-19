@@ -75,15 +75,18 @@ template<typename T> struct EventKey;
 template<typename T> struct EntryKey;
 template<typename T> struct UniqueObjectKey;
 
+// Type definition for bytecode buffer
+typedef std::vector<uint8> BytecodeBuffer;
+
 // Global bytecode cache entry
 struct GlobalCacheEntry
 {
-    std::vector<char> bytecode;
+    BytecodeBuffer bytecode;
     std::time_t last_modified;
     std::string filepath;
     
     GlobalCacheEntry() : last_modified(0) {}
-    GlobalCacheEntry(const std::vector<char>& code, std::time_t modTime, const std::string& path)
+    GlobalCacheEntry(const BytecodeBuffer& code, std::time_t modTime, const std::string& path)
         : bytecode(code), last_modified(modTime), filepath(path) {}
 };
 
