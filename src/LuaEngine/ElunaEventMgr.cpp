@@ -8,12 +8,6 @@
 #include "LuaEngine.h"
 #include "Object.h"
 
-extern "C"
-{
-#include "lua.h"
-#include "lauxlib.h"
-};
-
 ElunaEventProcessor::ElunaEventProcessor(Eluna** _E, WorldObject* _obj) : m_time(0), obj(_obj), E(_E)
 {
     // can be called from multiple threads

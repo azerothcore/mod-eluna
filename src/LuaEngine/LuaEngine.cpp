@@ -8,9 +8,7 @@
 #include "LuaEngine.h"
 #include "BindingMap.h"
 #include "Chat.h"
-#include "ElunaCompat.h"
 #include "ElunaEventMgr.h"
-#include "ElunaIncludes.h"
 #include "ElunaTemplate.h"
 #include "ElunaUtility.h"
 #include "ElunaCreatureAI.h"
@@ -25,16 +23,6 @@
 #define USING_BOOST
 
 #include <boost/filesystem.hpp>
-
-extern "C"
-{
-// Base lua libraries
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-
-// Additional lua libraries
-};
 
 Eluna::ScriptList Eluna::lua_scripts;
 Eluna::ScriptList Eluna::lua_extensions;
@@ -417,6 +405,28 @@ static bool ScriptPathComparator(const LuaScript& first, const LuaScript& second
     return first.filepath < second.filepath;
 }
 
+void Eluna::TestSol3Integration() {
+    lua_State* L = luaL_newstate();
+    luaL_openlibs(L);
+    
+    ElunaSol::SolWrapper sol_wrapper(L);
+    auto& sol = sol_wrapper.get();
+    
+    sol["test_number"] = 42;
+    sol["test_string"] = "Hello from Sol3 + mod-eluna!";
+    
+    sol["add"] = [](int a, int b) -> int {
+        return a + b;
+    };
+    
+    sol.script("result = add(10, 32)");
+    int result = sol["result"];
+    
+    lua_close(L);
+    
+    printf("Sol3 integration test passed! Result: %d\n", result);
+}
+
 void Eluna::RunScripts()
 {
     LOCK_ELUNA;
@@ -508,6 +518,7 @@ void Eluna::RunScripts()
     ELUNA_LOG_INFO("[Eluna]: Executed {} Lua scripts in {} ms", count, ElunaUtil::GetTimeDiff(oldMSTime));
 
     OnLuaStateOpen();
+    TestSol3Integration();
 }
 
 void Eluna::InvalidateObjects()
@@ -637,7 +648,7 @@ void Eluna::Push(lua_State* luastate, const int i)
 }
 void Eluna::Push(lua_State* luastate, const unsigned int u)
 {
-    lua_pushunsigned(luastate, u);
+    lua_pushinteger(luastate, u);
 }
 void Eluna::Push(lua_State* luastate, const double d)
 {

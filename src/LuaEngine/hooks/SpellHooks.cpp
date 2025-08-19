@@ -16,7 +16,7 @@ using namespace Hooks;
 #define START_HOOK(EVENT, ENTRY) \
     if (!IsEnabled())\
         return;\
-    auto key = EntryKey<SpellEvents>(EVENT, ENTRY);\
+    auto key = EntryKey<Hooks::SpellEvents>(EVENT, ENTRY);\
     if (!SpellEventBindings->HasBindingsFor(key))\
         return;\
     LOCK_ELUNA
@@ -24,7 +24,7 @@ using namespace Hooks;
 #define START_HOOK_WITH_RETVAL(EVENT, ENTRY, RETVAL) \
     if (!IsEnabled())\
         return RETVAL;\
-    auto key = EntryKey<SpellEvents>(EVENT, ENTRY);\
+    auto key = EntryKey<Hooks::SpellEvents>(EVENT, ENTRY);\
     if (!SpellEventBindings->HasBindingsFor(key))\
         return RETVAL;\
     LOCK_ELUNA

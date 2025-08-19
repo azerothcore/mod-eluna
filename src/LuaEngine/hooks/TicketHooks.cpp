@@ -16,7 +16,7 @@ using namespace Hooks;
 #define START_HOOK(EVENT) \
     if (!IsEnabled())\
         return;\
-    auto key = EventKey<TicketEvents>(EVENT);\
+    auto key = EventKey<Hooks::TicketEvents>(EVENT);\
     if (!TicketEventBindings->HasBindingsFor(key))\
         return;\
     LOCK_ELUNA
@@ -24,7 +24,7 @@ using namespace Hooks;
 #define START_HOOK(EVENT) \
     if (!IsEnabled())\
         return;\
-    auto key = EventKey<TicketEvents>(EVENT);\
+    auto key = EventKey<Hooks::TicketEvents>(EVENT);\
     if (!TicketEventBindings->HasBindingsFor(key))\
         return;\
     LOCK_ELUNA

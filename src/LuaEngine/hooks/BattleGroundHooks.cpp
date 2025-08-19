@@ -15,7 +15,7 @@ using namespace Hooks;
 #define START_HOOK(EVENT) \
     if (!IsEnabled())\
         return;\
-    auto key = EventKey<BGEvents>(EVENT);\
+    auto key = EventKey<Hooks::BGEvents>(EVENT);\
     if (!BGEventBindings->HasBindingsFor(key))\
         return;\
     LOCK_ELUNA

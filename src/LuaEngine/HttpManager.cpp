@@ -1,9 +1,4 @@
 #include <thread>
-extern "C"
-{
-#include "lua.h"
-#include "lauxlib.h"
-};
 
 #define CPPHTTPLIB_OPENSSL_SUPPORT
 

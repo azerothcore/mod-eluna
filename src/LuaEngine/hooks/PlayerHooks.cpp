@@ -16,7 +16,7 @@ using namespace Hooks;
 #define START_HOOK(EVENT) \
     if (!IsEnabled())\
         return;\
-    auto key = EventKey<PlayerEvents>(EVENT);\
+    auto key = EventKey<Hooks::PlayerEvents>(EVENT);\
     if (!PlayerEventBindings->HasBindingsFor(key))\
         return;\
     LOCK_ELUNA
@@ -24,7 +24,7 @@ using namespace Hooks;
 #define START_HOOK_WITH_RETVAL(EVENT, RETVAL) \
     if (!IsEnabled())\
         return RETVAL;\
-    auto key = EventKey<PlayerEvents>(EVENT);\
+    auto key = EventKey<Hooks::PlayerEvents>(EVENT);\
     if (!PlayerEventBindings->HasBindingsFor(key))\
         return RETVAL;\
     LOCK_ELUNA

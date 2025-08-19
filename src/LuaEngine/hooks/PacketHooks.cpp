@@ -16,7 +16,7 @@ using namespace Hooks;
 #define START_HOOK_SERVER(EVENT) \
     if (!IsEnabled())\
         return;\
-    auto key = EventKey<ServerEvents>(EVENT);\
+    auto key = EventKey<Hooks::ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\
         return;\
     LOCK_ELUNA
@@ -24,7 +24,7 @@ using namespace Hooks;
 #define START_HOOK_PACKET(EVENT, OPCODE) \
     if (!IsEnabled())\
         return;\
-    auto key = EntryKey<PacketEvents>(EVENT, OPCODE);\
+    auto key = EntryKey<Hooks::PacketEvents>(EVENT, OPCODE);\
     if (!PacketEventBindings->HasBindingsFor(key))\
         return;\
     LOCK_ELUNA

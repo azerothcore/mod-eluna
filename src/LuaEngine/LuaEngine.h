@@ -20,16 +20,15 @@
 #include "Hooks.h"
 #include "LFG.h"
 #include "ElunaUtility.h"
+#include "ElunaIncludes.h"
 #include "HttpManager.h"
 #include "EventEmitter.h"
 #include "TicketMgr.h"
 #include <mutex>
 #include <memory>
 
-extern "C"
-{
-#include "lua.h"
-};
+#include "sol.hpp"
+#include "ElunaSol.hpp"
 
 struct ItemTemplate;
 typedef BattlegroundTypeId BattleGroundTypeId;
@@ -62,7 +61,6 @@ class Weather;
 class WorldPacket;
 class Vehicle;
 
-struct lua_State;
 class EventMgr;
 class ElunaObject;
 template<typename T> class ElunaTemplate;
@@ -150,6 +148,7 @@ private:
     static void GetScripts(std::string path);
     static void AddScriptPath(std::string filename, const std::string& fullpath);
 
+    void TestSol3Integration();
     static int StackTrace(lua_State *_L);
     static void Report(lua_State* _L);
 

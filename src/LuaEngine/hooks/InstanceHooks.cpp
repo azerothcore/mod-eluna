@@ -17,8 +17,8 @@ using namespace Hooks;
 #define START_HOOK(EVENT, AI) \
     if (!IsEnabled())\
         return;\
-    auto mapKey = EntryKey<InstanceEvents>(EVENT, AI->instance->GetId());\
-    auto instanceKey = EntryKey<InstanceEvents>(EVENT, AI->instance->GetInstanceId());\
+    auto mapKey = EntryKey<Hooks::InstanceEvents>(EVENT, AI->instance->GetId());\
+    auto instanceKey = EntryKey<Hooks::InstanceEvents>(EVENT, AI->instance->GetInstanceId());\
     if (!MapEventBindings->HasBindingsFor(mapKey) && !InstanceEventBindings->HasBindingsFor(instanceKey))\
         return;\
     LOCK_ELUNA;\
@@ -28,8 +28,8 @@ using namespace Hooks;
 #define START_HOOK_WITH_RETVAL(EVENT, AI, RETVAL) \
     if (!IsEnabled())\
         return RETVAL;\
-    auto mapKey = EntryKey<InstanceEvents>(EVENT, AI->instance->GetId());\
-    auto instanceKey = EntryKey<InstanceEvents>(EVENT, AI->instance->GetInstanceId());\
+    auto mapKey = EntryKey<Hooks::InstanceEvents>(EVENT, AI->instance->GetId());\
+    auto instanceKey = EntryKey<Hooks::InstanceEvents>(EVENT, AI->instance->GetInstanceId());\
     if (!MapEventBindings->HasBindingsFor(mapKey) && !InstanceEventBindings->HasBindingsFor(instanceKey))\
         return RETVAL;\
     LOCK_ELUNA;\

@@ -15,7 +15,7 @@ using namespace Hooks;
 #define START_HOOK(EVENT) \
     if (!IsEnabled())\
         return;\
-    auto key = EventKey<GuildEvents>(EVENT);\
+    auto key = EventKey<Hooks::GuildEvents>(EVENT);\
     if (!GuildEventBindings->HasBindingsFor(key))\
         return;\
     LOCK_ELUNA

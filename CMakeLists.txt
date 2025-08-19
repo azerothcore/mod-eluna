@@ -16,10 +16,10 @@ endif()
 
 if (LUA_VERSION MATCHES "luajit")
   add_subdirectory(src/lualib/luajit)
-  set(LUAJIT_VERSION true)
 else()
   add_subdirectory(src/lualib/lua)
-  set(LUAJIT_VERSION false)
 endif()
 
-set_target_properties(lualib PROPERTIES INTERFACE_COMPILE_DEFINITIONS LUAJIT_VERSION)
+add_library(sol3 INTERFACE)
+target_include_directories(sol3 INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src/sol)
+target_link_libraries(sol3 INTERFACE lualib)
