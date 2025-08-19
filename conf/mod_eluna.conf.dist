@@ -37,6 +37,14 @@
 #                    Below are a set of "standard" paths used by most package managers.
 #                    "/usr/local/lib/lua/%s/?.so;/usr/lib/x86_64-linux-gnu/lua/%s/?.so;/usr/local/lib/lua/%s/loadall.so;"
 #       Default:     ""
+#
+#   Eluna.BytecodeCache
+#       Description: Enable or disable bytecode caching for improved performance.
+#                    When enabled, Lua/MoonScript files are compiled to bytecode and cached in memory.
+#                    This significantly speeds up script reloading (.reload eluna).
+#                    Cache is cleared only when files are modified or server restarts.
+#       Default:    true  - (enabled)
+#                   false - (disabled)
 
 Eluna.Enabled = true
 Eluna.TraceBack = false
@@ -44,6 +52,7 @@ Eluna.ScriptPath = "lua_scripts"
 Eluna.PlayerAnnounceReload = false
 Eluna.RequirePaths = ""
 Eluna.RequireCPaths = ""
+Eluna.BytecodeCache = true
 
 ###################################################################################################
 # LOGGING SYSTEM SETTINGS
