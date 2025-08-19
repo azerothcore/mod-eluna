@@ -438,7 +438,6 @@ bool Eluna::CompileScriptToGlobalCache(const std::string& filepath)
     }
 
     lua_close(tempL);
-    ELUNA_LOG_DEBUG("[Eluna]: Compiled to bytecode cache: `{}`", filepath);
     return true;
 }
 
@@ -497,7 +496,6 @@ bool Eluna::CompileMoonScriptToGlobalCache(const std::string& filepath)
     }
 
     lua_close(tempL);
-    ELUNA_LOG_DEBUG("[Eluna]: Compiled to bytecode cache: `{}`", filepath);
     return true;
 }
 
@@ -513,11 +511,10 @@ int Eluna::TryLoadFromGlobalCache(lua_State* L, const std::string& filepath)
     if (it->second.last_modified != currentModTime || currentModTime == 0)
         return LUA_ERRFILE;
     
-    ELUNA_LOG_DEBUG("[Eluna]: Loading from cache: `{}`", filepath);
     return luaL_loadbuffer(L, it->second.bytecode.data(), it->second.bytecode.size(), filepath.c_str());
 }
 
-int Eluna::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool isMoonScript)
+int Eluna::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool isMoonScript, uint32* compiledCount, uint32* cachedCount)
 {
     bool cacheEnabled = eConfigMgr->GetOption<bool>("Eluna.BytecodeCache", true);
     
@@ -525,7 +522,10 @@ int Eluna::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool i
     {
         int result = TryLoadFromGlobalCache(L, filepath);
         if (result == LUA_OK)
+        {
+            if (cachedCount) (*cachedCount)++;
             return LUA_OK;
+        }
         
         bool compileSuccess = isMoonScript ? 
             CompileMoonScriptToGlobalCache(filepath) : 
@@ -533,6 +533,7 @@ int Eluna::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool i
             
         if (compileSuccess)
         {
+            if (compiledCount) (*compiledCount)++;
             std::lock_guard<std::mutex> lock(globalCacheMutex);
             auto it = globalBytecodeCache.find(filepath);
             if (it != globalBytecodeCache.end() && !it->second.bytecode.empty())
@@ -659,6 +660,9 @@ void Eluna::RunScripts()
 
     uint32 oldMSTime = ElunaUtil::GetCurrTime();
     uint32 count = 0;
+    uint32 compiledCount = 0;
+    uint32 cachedCount = 0;
+    uint32 precompiledCount = 0;
     bool cacheEnabled = eConfigMgr->GetOption<bool>("Eluna.BytecodeCache", true);
     
     if (cacheEnabled)
@@ -700,7 +704,7 @@ void Eluna::RunScripts()
 
         if (it->fileext == ".moon")
         {
-            if (LoadScriptWithCache(L, it->filepath, true))
+            if (LoadScriptWithCache(L, it->filepath, true, &compiledCount, &cachedCount))
             {
                 // Stack: package, modules, errmsg
                 ELUNA_LOG_ERROR("[Eluna]: Error loading MoonScript `{}`", it->filepath);
@@ -711,7 +715,6 @@ void Eluna::RunScripts()
         }
         else if (it->fileext == ".out")
         {
-            ELUNA_LOG_DEBUG("[Eluna]: Loading pre-compiled: `{}`", it->filepath);
             if (LoadCompiledScript(L, it->filepath))
             {
                 // Stack: package, modules, errmsg
@@ -720,10 +723,11 @@ void Eluna::RunScripts()
                 // Stack: package, modules
                 continue;
             }
+            precompiledCount++;
         }
         else if (it->fileext == ".lua" || it->fileext == ".ext")
         {
-            if (LoadScriptWithCache(L, it->filepath, false))
+            if (LoadScriptWithCache(L, it->filepath, false, &compiledCount, &cachedCount))
             {
                 // Stack: package, modules, errmsg
                 ELUNA_LOG_ERROR("[Eluna]: Error loading `{}`", it->filepath);
@@ -765,9 +769,13 @@ void Eluna::RunScripts()
     }
     // Stack: package, modules
     lua_pop(L, 2);
-    ELUNA_LOG_INFO("[Eluna]: Executed {} Lua scripts in {} ms", count, ElunaUtil::GetTimeDiff(oldMSTime));
-    if (cacheEnabled && GetGlobalCacheSize() > 0)
-        ELUNA_LOG_INFO("[Eluna]: Global cache contains {} compiled scripts", GetGlobalCacheSize());
+    
+    std::string details = "";
+    if (cacheEnabled && (compiledCount > 0 || cachedCount > 0 || precompiledCount > 0))
+    {
+        details = fmt::format("({} compiled, {} cached, {} pre-compiled)", compiledCount, cachedCount, precompiledCount);
+    }
+    ELUNA_LOG_INFO("[Eluna]: Executed {} Lua scripts in {} ms {}", count, ElunaUtil::GetTimeDiff(oldMSTime), details);
 
     OnLuaStateOpen();
 }

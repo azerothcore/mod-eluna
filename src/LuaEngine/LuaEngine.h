@@ -173,7 +173,7 @@ private:
     static bool CompileScriptToGlobalCache(const std::string& filepath);
     static bool CompileMoonScriptToGlobalCache(const std::string& filepath);
     static int TryLoadFromGlobalCache(lua_State* L, const std::string& filepath);
-    static int LoadScriptWithCache(lua_State* L, const std::string& filepath, bool isMoonScript);
+    static int LoadScriptWithCache(lua_State* L, const std::string& filepath, bool isMoonScript, uint32* compiledCount = nullptr, uint32* cachedCount = nullptr);
     static void ClearGlobalCache();
     static void ClearTimestampCache();
     static size_t GetGlobalCacheSize();
