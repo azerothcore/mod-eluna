@@ -174,6 +174,20 @@ namespace LuaPacket
     }
 
     /**
+     * Reads a packed GUID from the [WorldPacket] and returns it as a full 64-bit integer.
+     * The packed data size varies (2-9 bytes), but always unpacks to a complete 64-bit GUID.
+     *
+     * @return uint64 value : value returned as string
+     */
+    int ReadPackedGUID(lua_State* L, WorldPacket* packet)
+    {
+        uint64 guid;
+        packet->readPackGUID(guid);
+        Eluna::Push(L, guid);
+        return 1;
+    }
+	
+    /**
      * Reads and returns a string value from the [WorldPacket].
      *
      * @return string value
@@ -195,6 +209,19 @@ namespace LuaPacket
     {
         ObjectGuid guid = Eluna::CHECKVAL<ObjectGuid>(L, 2);
         (*packet) << guid;
+        return 0;
+    }
+
+    /**
+     * Writes an ObjectGuid as packed GUID format to the [WorldPacket].
+     *
+     * @param ObjectGuid value : the ObjectGuid to be packed to the [WorldPacket]
+     */
+    int WritePackedGUID(lua_State* L, WorldPacket* packet)
+    {
+        ObjectGuid guid = Eluna::CHECKVAL<ObjectGuid>(L, 2);
+        PackedGuid packedGuid(guid);
+        (*packet) << packedGuid;
         return 0;
     }
 
