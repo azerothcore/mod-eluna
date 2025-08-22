@@ -439,7 +439,7 @@ namespace LuaCreature
     *
     * @return uint32 spawnId
     */
-    int GetCreatureSpawnId(lua_State* L, Creature* creature)
+    int GetSpawnId(lua_State* L, Creature* creature)
     {
         Eluna::Push(L, creature->GetSpawnId());
         return 1;
