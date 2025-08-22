@@ -58,6 +58,7 @@ namespace LuaGlobalFunctions
     /**
      * Returns config value as a string.
      *
+     * @param string name : name of the value
      * @return string value
      */
     int GetConfigValue(lua_State* L)
