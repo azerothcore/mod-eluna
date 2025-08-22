@@ -70,9 +70,31 @@ namespace LuaGlobalFunctions
         if (!key)
             return 0;
 
-		// Get config value and tell Eluna to push it.
-        auto optionFound = sConfigMgr->GetOption<std::string>(key, "", false);
-        Eluna::Push(L, optionFound);
+        std::string val = sConfigMgr->GetOption<std::string>(key, "", false);
+
+        // If empty, push as empty string
+        if (val.empty())
+        {
+            Eluna::Push(L, val);
+            return 1;
+        }
+
+        std::string lower = val;
+        std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+
+        // If the value is a bool, return a real bool
+        if (lower == "true")
+        {
+            Eluna::Push(L, true);
+            return 1;
+        }
+        else if (lower == "false")
+        {
+            Eluna::Push(L, false);
+            return 1;
+        }
+
+        Eluna::Push(L, val);
         return 1;
     }
 
