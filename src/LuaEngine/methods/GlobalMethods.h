@@ -63,16 +63,11 @@ namespace LuaGlobalFunctions
      */
     int GetConfigValue(lua_State* L)
     {
-        // The key we want from the config file.
         const char* key = Eluna::CHECKVAL<const char*>(L, 1);
-
-        // Check if any of the arguments are missing.
-        if (!key)
-            return 0;
-
+        if (!key) return 0;
+        
         std::string val = sConfigMgr->GetOption<std::string>(key, "", false);
 
-        // If empty, push as empty string
         if (val.empty())
         {
             Eluna::Push(L, val);
@@ -81,8 +76,7 @@ namespace LuaGlobalFunctions
 
         std::string lower = val;
         std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
-
-        // If the value is a bool, return a real bool
+        
         if (lower == "true")
         {
             Eluna::Push(L, true);
@@ -93,7 +87,13 @@ namespace LuaGlobalFunctions
             Eluna::Push(L, false);
             return 1;
         }
-
+        
+        auto intVal = Acore::StringTo<uint32>(val);
+        if (intVal) {
+            Eluna::Push(L, *intVal);
+            return 1;
+        }
+        
         Eluna::Push(L, val);
         return 1;
     }
