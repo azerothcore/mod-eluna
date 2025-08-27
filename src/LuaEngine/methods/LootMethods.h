@@ -350,7 +350,7 @@ namespace LuaLoot
     /**
      * Returns the [Player] GUID that owns this loot for round robin distribution.
      *
-     * @return ObjectGUID roundRobinPlayer : the player GUID
+     * @return ObjectGuid roundRobinPlayer : the player GUID
      */
     int GetRoundRobinPlayer(lua_State* L, Loot* loot)
     {
