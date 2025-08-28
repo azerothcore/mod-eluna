@@ -4420,6 +4420,7 @@ namespace LuaPlayer
         uint32 talentId = Eluna::CHECKVAL<uint32>(L, 3);
         uint32 talentRank = Eluna::CHECKVAL<uint32>(L, 4);
         player->LearnPetTalent(petGuid, talentId, talentRank);
+        return 0;
     }
 
     /**
