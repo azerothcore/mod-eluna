@@ -67,6 +67,7 @@ if (WIN32)
     PROPERTIES
     IMPORTED_LOCATION ${LUA_BIN_FOLDER}/src/lua51.lib
     INTERFACE_INCLUDE_DIRECTORIES "${LUA_SRC_FOLDER}/src"
+    INTERFACE_COMPILE_DEFINITIONS "LUAJIT_VERSION=1"
     )
 
     # install generated files
@@ -99,6 +100,7 @@ if (WIN32)
     IMPORTED_LOCATION ${LUA_BIN_FOLDER}/src/lua51.dll
     IMPORTED_IMPLIB ${LUA_BIN_FOLDER}/src/lua51.lib
     INTERFACE_INCLUDE_DIRECTORIES "${LUA_SRC_FOLDER}/src"
+    INTERFACE_COMPILE_DEFINITIONS "LUAJIT_VERSION=1"
     )
 
     # install generated files
@@ -154,10 +156,12 @@ if (UNIX OR APPLE)
   PROPERTIES
   # IMPORTED_LOCATION ${LUAJIT_LIB_PATH} # cmake bullshit. spent days figuring this and turns out set_target_properties does squat shit while set_property works fine.
   INTERFACE_INCLUDE_DIRECTORIES "${LUA_SRC_FOLDER}/src"
+  INTERFACE_COMPILE_DEFINITIONS "LUAJIT_VERSION=1"
   )
   set_property(TARGET lualib PROPERTY IMPORTED_LOCATION ${LUAJIT_LIB_PATH})
 
   # install generated files
   install(DIRECTORY ${LUA_INSTALL_PATH}/ DESTINATION ${CMAKE_INSTALL_PREFIX})
 endif()
+
 
