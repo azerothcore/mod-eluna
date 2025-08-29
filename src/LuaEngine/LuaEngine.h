@@ -24,6 +24,7 @@
 #include "EventEmitter.h"
 #include "TicketMgr.h"
 #include "ElunaFileWatcher.h"
+#include "LootMgr.h"
 #include <mutex>
 #include <memory>
 
