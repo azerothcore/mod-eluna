@@ -1332,6 +1332,9 @@ namespace LuaGlobalFunctions
             luaL_argerror(L, 2, "unable to make a ref to function");
             return 0;
         }
+   
+	   // Increment pending callbacks counter
+	   Eluna::GEluna->IncrementCallbacks();
 
         Eluna::GEluna->queryProcessor.AddCallback(db.AsyncQuery(query).WithCallback([L, funcRef](QueryResult result)
             {
@@ -1349,6 +1352,9 @@ namespace LuaGlobalFunctions
                 Eluna::GEluna->ExecuteCall(1, 0);
 
                 luaL_unref(L, LUA_REGISTRYINDEX, funcRef);
+				
+			   // Decrement pending callbacks counter
+			   Eluna::GEluna->DecrementCallbacks();
             }));
 
         return 0;
