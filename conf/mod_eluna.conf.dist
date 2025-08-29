@@ -51,6 +51,14 @@
 #                    Lower values provide faster detection but use more CPU resources.
 #                    Higher values reduce CPU usage but increase detection delay.
 #       Default:    1 - (check every 1 second)
+#
+#   Eluna.BytecodeCache
+#       Description: Enable or disable bytecode caching for improved performance.
+#                    When enabled, Lua/MoonScript files are compiled to bytecode and cached in memory.
+#                    This significantly speeds up script reloading (.reload eluna).
+#                    Cache is cleared only when files are modified or server restarts.
+#       Default:    true  - (enabled)
+#                   false - (disabled)
 
 Eluna.Enabled = true
 Eluna.TraceBack = false
@@ -60,6 +68,7 @@ Eluna.RequirePaths = ""
 Eluna.RequireCPaths = ""
 Eluna.AutoReload = false
 Eluna.AutoReloadInterval = 1
+Eluna.BytecodeCache = true
 
 ###################################################################################################
 # LOGGING SYSTEM SETTINGS
