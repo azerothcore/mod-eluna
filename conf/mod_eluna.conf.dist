@@ -37,6 +37,28 @@
 #                    Below are a set of "standard" paths used by most package managers.
 #                    "/usr/local/lib/lua/%s/?.so;/usr/lib/x86_64-linux-gnu/lua/%s/?.so;/usr/local/lib/lua/%s/loadall.so;"
 #       Default:     ""
+#
+#   Eluna.AutoReload
+#       Description: Enable or disable automatic reloading of Lua scripts when files are modified.
+#                    This feature watches the script directory for changes and automatically
+#                    triggers a reload when .lua files are added, modified, or deleted.
+#                    Useful for development but should be disabled in production environments.
+#       Default:    false - (disabled)
+#                   true  - (enabled)
+#
+#   Eluna.AutoReloadInterval
+#       Description: Sets the interval in seconds between file system checks for auto-reload.
+#                    Lower values provide faster detection but use more CPU resources.
+#                    Higher values reduce CPU usage but increase detection delay.
+#       Default:    1 - (check every 1 second)
+#
+#   Eluna.BytecodeCache
+#       Description: Enable or disable bytecode caching for improved performance.
+#                    When enabled, Lua/MoonScript files are compiled to bytecode and cached in memory.
+#                    This significantly speeds up script reloading (.reload eluna).
+#                    Cache is cleared only when files are modified or server restarts.
+#       Default:    true  - (enabled)
+#                   false - (disabled)
 
 Eluna.Enabled = true
 Eluna.TraceBack = false
@@ -44,6 +66,9 @@ Eluna.ScriptPath = "lua_scripts"
 Eluna.PlayerAnnounceReload = false
 Eluna.RequirePaths = ""
 Eluna.RequireCPaths = ""
+Eluna.AutoReload = false
+Eluna.AutoReloadInterval = 1
+Eluna.BytecodeCache = true
 
 ###################################################################################################
 # LOGGING SYSTEM SETTINGS
