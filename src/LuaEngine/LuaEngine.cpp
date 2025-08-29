@@ -25,6 +25,11 @@
 #define USING_BOOST
 
 #include <boost/filesystem.hpp>
+#include <fstream>
+#include <vector>
+#include <ctime>
+#include <sys/stat.h>
+#include <unordered_map>
 
 extern "C"
 {
@@ -45,6 +50,12 @@ Eluna* Eluna::GEluna = NULL;
 bool Eluna::reload = false;
 bool Eluna::initialized = false;
 Eluna::LockType Eluna::lock;
+std::unique_ptr<ElunaFileWatcher> Eluna::fileWatcher;
+
+// Global bytecode cache that survives Eluna reloads
+static std::unordered_map<std::string, GlobalCacheEntry> globalBytecodeCache;
+static std::unordered_map<std::string, std::time_t> timestampCache;
+static std::mutex globalCacheMutex;
 
 extern void RegisterFunctions(Eluna* E);
 
@@ -65,6 +76,14 @@ void Eluna::Initialize()
 
     // Create global eluna
     GEluna = new Eluna();
+
+    // Start file watcher if enabled
+    if (eConfigMgr->GetOption<bool>("Eluna.AutoReload", false))
+    {
+        uint32 watchInterval = eConfigMgr->GetOption<uint32>("Eluna.AutoReloadInterval", 1);
+        fileWatcher = std::make_unique<ElunaFileWatcher>();
+        fileWatcher->StartWatching(lua_folderpath, watchInterval);
+    }
 }
 
 void Eluna::Uninitialize()
@@ -72,11 +91,21 @@ void Eluna::Uninitialize()
     LOCK_ELUNA;
     ASSERT(IsInitialized());
 
+    // Stop file watcher
+    if (fileWatcher)
+    {
+        fileWatcher->StopWatching();
+        fileWatcher.reset();
+    }
+
     delete GEluna;
     GEluna = NULL;
 
     lua_scripts.clear();
     lua_extensions.clear();
+
+    // Clear global cache on shutdown
+    ClearGlobalCache();
 
     initialized = false;
 }
@@ -345,7 +374,7 @@ void Eluna::AddScriptPath(std::string filename, const std::string& fullpath)
     filename = filename.substr(0, extDot);
 
     // check extension and add path to scripts to load
-    if (ext != ".lua" && ext != ".dll" && ext != ".so" && ext != ".ext" && ext !=".moon")
+    if (ext != ".lua" && ext != ".dll" && ext != ".so" && ext != ".ext" && ext !=".moon" && ext != ".out")
         return;
     bool extension = ext == ".ext";
 
@@ -359,6 +388,228 @@ void Eluna::AddScriptPath(std::string filename, const std::string& fullpath)
     else
         lua_scripts.push_back(script);
     ELUNA_LOG_DEBUG("[Eluna]: AddScriptPath add path `{}`", fullpath);
+}
+
+std::time_t Eluna::GetFileModTime(const std::string& filepath)
+{
+    struct stat fileInfo;
+    if (stat(filepath.c_str(), &fileInfo) == 0)
+        return fileInfo.st_mtime;
+    return 0;
+}
+
+std::time_t Eluna::GetFileModTimeWithCache(const std::string& filepath)
+{
+    auto it = timestampCache.find(filepath);
+    if (it != timestampCache.end())
+        return it->second;
+    
+    std::time_t modTime = GetFileModTime(filepath);
+    timestampCache[filepath] = modTime;
+    return modTime;
+}
+
+bool Eluna::CompileScriptToGlobalCache(const std::string& filepath)
+{
+    std::lock_guard<std::mutex> lock(globalCacheMutex);
+    
+    lua_State* tempL = luaL_newstate();
+    if (!tempL)
+        return false;
+
+    int result = luaL_loadfile(tempL, filepath.c_str());
+    if (result != LUA_OK)
+    {
+        lua_close(tempL);
+        return false;
+    }
+
+    std::time_t modTime = GetFileModTime(filepath);
+    
+    auto& cacheEntry = globalBytecodeCache[filepath];
+    cacheEntry.last_modified = modTime;
+    cacheEntry.filepath = filepath;
+    cacheEntry.bytecode.clear();
+    cacheEntry.bytecode.reserve(1024);
+
+    struct BytecodeWriter {
+        BytecodeBuffer* buffer;
+        static int writer(lua_State*, const void* p, size_t sz, void* ud) {
+            BytecodeWriter* w = static_cast<BytecodeWriter*>(ud);
+            const uint8* bytes = static_cast<const uint8*>(p);
+            w->buffer->insert(w->buffer->end(), bytes, bytes + sz);
+            return 0;
+        }
+    };
+
+    BytecodeWriter writer;
+    writer.buffer = &cacheEntry.bytecode;
+
+    int dumpResult = lua_dump(tempL, BytecodeWriter::writer, &writer);
+    if (dumpResult != LUA_OK || cacheEntry.bytecode.empty())
+    {
+        globalBytecodeCache.erase(filepath);
+        lua_close(tempL);
+        return false;
+    }
+
+    lua_close(tempL);
+    return true;
+}
+
+bool Eluna::CompileMoonScriptToGlobalCache(const std::string& filepath)
+{
+    std::lock_guard<std::mutex> lock(globalCacheMutex);
+    
+    lua_State* tempL = luaL_newstate();
+    if (!tempL)
+        return false;
+
+    luaL_openlibs(tempL);
+
+    std::string moonscriptLoader = "return require('moonscript').loadfile([[" + filepath + "]])";
+    int result = luaL_loadstring(tempL, moonscriptLoader.c_str());
+    if (result != LUA_OK)
+    {
+        lua_close(tempL);
+        return false;
+    }
+
+    result = lua_pcall(tempL, 0, 1, 0);
+    if (result != LUA_OK)
+    {
+        lua_close(tempL);
+        return false;
+    }
+
+    std::time_t modTime = GetFileModTime(filepath);
+    
+    auto& cacheEntry = globalBytecodeCache[filepath];
+    cacheEntry.last_modified = modTime;
+    cacheEntry.filepath = filepath;
+    cacheEntry.bytecode.clear();
+    cacheEntry.bytecode.reserve(2048);
+
+    struct BytecodeWriter {
+        BytecodeBuffer* buffer;
+        static int writer(lua_State*, const void* p, size_t sz, void* ud) {
+            BytecodeWriter* w = static_cast<BytecodeWriter*>(ud);
+            const uint8* bytes = static_cast<const uint8*>(p);
+            w->buffer->insert(w->buffer->end(), bytes, bytes + sz);
+            return 0;
+        }
+    };
+
+    BytecodeWriter writer;
+    writer.buffer = &cacheEntry.bytecode;
+
+    int dumpResult = lua_dump(tempL, BytecodeWriter::writer, &writer);
+    if (dumpResult != LUA_OK || cacheEntry.bytecode.empty())
+    {
+        globalBytecodeCache.erase(filepath);
+        lua_close(tempL);
+        return false;
+    }
+
+    lua_close(tempL);
+    return true;
+}
+
+int Eluna::TryLoadFromGlobalCache(lua_State* L, const std::string& filepath)
+{
+    std::lock_guard<std::mutex> lock(globalCacheMutex);
+    
+    auto it = globalBytecodeCache.find(filepath);
+    if (it == globalBytecodeCache.end() || it->second.bytecode.empty())
+        return LUA_ERRFILE;
+    
+    std::time_t currentModTime = GetFileModTimeWithCache(filepath);
+    if (it->second.last_modified != currentModTime || currentModTime == 0)
+        return LUA_ERRFILE;
+    
+    return luaL_loadbuffer(L, reinterpret_cast<const char*>(it->second.bytecode.data()), it->second.bytecode.size(), filepath.c_str());
+}
+
+int Eluna::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool isMoonScript, uint32* compiledCount, uint32* cachedCount)
+{
+    bool cacheEnabled = eConfigMgr->GetOption<bool>("Eluna.BytecodeCache", true);
+    
+    if (cacheEnabled)
+    {
+        int result = TryLoadFromGlobalCache(L, filepath);
+        if (result == LUA_OK)
+        {
+            if (cachedCount) (*cachedCount)++;
+            return LUA_OK;
+        }
+        
+        bool compileSuccess = isMoonScript ? 
+            CompileMoonScriptToGlobalCache(filepath) : 
+            CompileScriptToGlobalCache(filepath);
+            
+        if (compileSuccess)
+        {
+            if (compiledCount) (*compiledCount)++;
+            std::lock_guard<std::mutex> lock(globalCacheMutex);
+            auto it = globalBytecodeCache.find(filepath);
+            if (it != globalBytecodeCache.end() && !it->second.bytecode.empty())
+            {
+                result = luaL_loadbuffer(L, reinterpret_cast<const char*>(it->second.bytecode.data()), it->second.bytecode.size(), filepath.c_str());
+                if (result == LUA_OK)
+                    return LUA_OK;
+            }
+        }
+    }
+    
+    if (isMoonScript)
+    {
+        std::string str = "return require('moonscript').loadfile([[" + filepath + "]])";
+        int result = luaL_loadstring(L, str.c_str());
+        if (result != LUA_OK)
+            return result;
+        return lua_pcall(L, 0, LUA_MULTRET, 0);
+    }
+    else
+    {
+        return luaL_loadfile(L, filepath.c_str());
+    }
+}
+
+void Eluna::ClearGlobalCache()
+{
+    std::lock_guard<std::mutex> lock(globalCacheMutex);
+    globalBytecodeCache.clear();
+    timestampCache.clear();
+    ELUNA_LOG_INFO("[Eluna]: Global bytecode cache cleared");
+}
+
+void Eluna::ClearTimestampCache()
+{
+    std::lock_guard<std::mutex> lock(globalCacheMutex);
+    timestampCache.clear();
+}
+
+size_t Eluna::GetGlobalCacheSize()
+{
+    std::lock_guard<std::mutex> lock(globalCacheMutex);
+    return globalBytecodeCache.size();
+}
+
+int Eluna::LoadCompiledScript(lua_State* L, const std::string& filepath)
+{
+    std::ifstream file(filepath, std::ios::binary);
+    if (!file.is_open())
+        return LUA_ERRFILE;
+
+    file.seekg(0, std::ios::end);
+    size_t fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    std::vector<char> buffer(fileSize);
+    file.read(buffer.data(), fileSize);
+    file.close();
+
+    return luaL_loadbuffer(L, buffer.data(), fileSize, filepath.c_str());
 }
 
 // Finds lua script files from given path (including subdirectories) and pushes them to scripts
@@ -425,6 +676,13 @@ void Eluna::RunScripts()
 
     uint32 oldMSTime = ElunaUtil::GetCurrTime();
     uint32 count = 0;
+    uint32 compiledCount = 0;
+    uint32 cachedCount = 0;
+    uint32 precompiledCount = 0;
+    bool cacheEnabled = eConfigMgr->GetOption<bool>("Eluna.BytecodeCache", true);
+    
+    if (cacheEnabled)
+        ClearTimestampCache();
 
     ScriptList scripts;
     lua_extensions.sort(ScriptPathComparator);
@@ -439,7 +697,7 @@ void Eluna::RunScripts()
     luaL_getsubtable(L, -1, "loaded");
     // Stack: package, modules
     int modules = lua_gettop(L);
-    for (ScriptList::const_iterator it = scripts.begin(); it != scripts.end(); ++it)
+    for (ScriptList::iterator it = scripts.begin(); it != scripts.end(); ++it)
     {
         // Check that no duplicate names exist
         if (loaded.find(it->filename) != loaded.end())
@@ -462,11 +720,33 @@ void Eluna::RunScripts()
 
         if (it->fileext == ".moon")
         {
-            std::string str = "return require('moonscript').loadfile([[" + it->filepath + "]])";
-            if (luaL_loadstring(L, str.c_str()) || lua_pcall(L, 0, LUA_MULTRET, 0))
+            if (LoadScriptWithCache(L, it->filepath, true, &compiledCount, &cachedCount))
             {
                 // Stack: package, modules, errmsg
                 ELUNA_LOG_ERROR("[Eluna]: Error loading MoonScript `{}`", it->filepath);
+                Report(L);
+                // Stack: package, modules
+                continue;
+            }
+        }
+        else if (it->fileext == ".out")
+        {
+            if (LoadCompiledScript(L, it->filepath))
+            {
+                // Stack: package, modules, errmsg
+                ELUNA_LOG_ERROR("[Eluna]: Error loading compiled script `{}`", it->filepath);
+                Report(L);
+                // Stack: package, modules
+                continue;
+            }
+            precompiledCount++;
+        }
+        else if (it->fileext == ".lua" || it->fileext == ".ext")
+        {
+            if (LoadScriptWithCache(L, it->filepath, false, &compiledCount, &cachedCount))
+            {
+                // Stack: package, modules, errmsg
+                ELUNA_LOG_ERROR("[Eluna]: Error loading `{}`", it->filepath);
                 Report(L);
                 // Stack: package, modules
                 continue;
@@ -505,7 +785,13 @@ void Eluna::RunScripts()
     }
     // Stack: package, modules
     lua_pop(L, 2);
-    ELUNA_LOG_INFO("[Eluna]: Executed {} Lua scripts in {} ms", count, ElunaUtil::GetTimeDiff(oldMSTime));
+    
+    std::string details = "";
+    if (cacheEnabled && (compiledCount > 0 || cachedCount > 0 || precompiledCount > 0))
+    {
+        details = fmt::format("({} compiled, {} cached, {} pre-compiled)", compiledCount, cachedCount, precompiledCount);
+    }
+    ELUNA_LOG_INFO("[Eluna]: Executed {} Lua scripts in {} ms {}", count, ElunaUtil::GetTimeDiff(oldMSTime), details);
 
     OnLuaStateOpen();
 }

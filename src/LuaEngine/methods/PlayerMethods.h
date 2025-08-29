@@ -692,65 +692,6 @@ namespace LuaPlayer
         return 1;
     }
 
-    /*int HasReceivedQuestReward(lua_State* L, Player* player)
-    {
-        uint32 entry = Eluna::CHECKVAL<uint32>(L, 2);
-
-        Eluna::Push(L, player->IsQuestRewarded(entry));
-        return 1;
-    }*/
-
-    /*int IsOutdoorPvPActive(lua_State* L, Player* player)
-    {
-        Eluna::Push(L, player->IsOutdoorPvPActive());
-        return 1;
-    }*/
-
-    /*int IsImmuneToEnvironmentalDamage(lua_State* L, Player* player)
-    {
-        Eluna::Push(L, player->IsImmuneToEnvironmentalDamage());
-        return 1;
-    }*/
-
-    /*int InRandomLfgDungeon(lua_State* L, Player* player)
-    {
-        Eluna::Push(L, player->inRandomLfgDungeon());
-        return 1;
-    }*/
-
-    /*int IsUsingLfg(lua_State* L, Player* player)
-    {
-        Eluna::Push(L, player->isUsingLfg());
-        return 1;
-    }*/
-
-    /*int IsNeverVisible(lua_State* L, Player* player)
-    {
-        Eluna::Push(L, player->IsNeverVisible());
-        return 1;
-    }*/
-
-    /*int CanFlyInZone(lua_State* L, Player* player)
-    {
-        uint32 mapid = Eluna::CHECKVAL<uint32>(L, 2);
-        uint32 zone = Eluna::CHECKVAL<uint32>(L, 2);
-
-        Eluna::Push(L, player->IsKnowHowFlyIn(mapid, zone));
-        return 1;
-    }*/
-
-    /*int HasPendingBind(lua_State* L, Player* player)
-    {
-        Eluna::Push(L, player->PendingHasPendingBind());
-        return 1;
-    }*/
-
-    /*int IsARecruiter(lua_State* L, Player* player)
-    {
-        Eluna::Push(L, player->GetSession()->IsARecruiter() || (player->GetSession()->GetRecruiterId() != 0));
-        return 1;
-    }*/
-
     /**
      * Returns the amount of available specs the [Player] currently has
      *
@@ -2132,18 +2073,6 @@ namespace LuaPlayer
     }*/
 
     /**
-     * Resets the [Player]s pets talent points
-     */
-    int ResetPetTalents(lua_State* /*L*/, Player* player)
-    {
-        Pet* pet = player->GetPet();
-        Pet::resetTalentsForAllPetsOf(player, pet);
-        if (pet)
-            player->SendTalentsInfoData(true);
-        return 0;
-    }
-
-    /**
      * Reset the [Player]s completed achievements
      */
     int ResetAchievements(lua_State* /*L*/, Player* player)
@@ -3148,10 +3077,11 @@ namespace LuaPlayer
     }
 
     /**
-     * Advances a [Player]s specific skill to the amount specified
+     * Updates a skill for the [Player] and advances it by the specified step.
      *
-     * @param uint32 skillId
-     * @param uint32 skillStep
+     * @param uint32 skillId : the skill to update
+     * @param uint32 step : the step to advance the skill by
+     * @return bool success : true if the skill was updated successfully
      */
     int AdvanceSkill(lua_State* L, Player* player)
     {
@@ -3160,9 +3090,10 @@ namespace LuaPlayer
         if (_skillId && _step)
         {
             if (player->HasSkill(_skillId))
-                player->UpdateSkill(_skillId, _step);
+                Eluna::Push(L, player->UpdateSkill(_skillId, _step));
         }
-        return 0;
+        Eluna::Push(L, false);
+        return 1;
     }
 
     /**
@@ -4095,6 +4026,857 @@ namespace LuaPlayer
 
         player->TeleportTo(game_tele->mapId, game_tele->position_x, game_tele->position_y, game_tele->position_z, game_tele->orientation);
         return 0;
+    }
+
+    /**
+     * Returns the [Player]'s current [Pet], if any.
+     *
+     * @return [Pet] pet : the player's pet, or `nil` if no pet
+     */
+    int GetPet(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetPet());
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] is at maximum level, `false` otherwise.
+     *
+     * @return bool isMaxLevel
+     */
+    int IsMaxLevel(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->IsMaxLevel());
+        return 1;
+    }
+
+    /**
+     * Summons a [Pet] at the specified location.
+     *
+     * @param uint32 entry : the creature entry ID to summon
+     * @param float x : X coordinate
+     * @param float y : Y coordinate
+     * @param float z : Z coordinate
+     * @param float ang : orientation angle
+     * @param [PetType] petType : the type of pet to summon
+     * @param uint32 duration = 0 : duration in milliseconds, 0 for permanent
+     * @param uint32 healthPct = 0 : initial health percentage
+     * @return [Pet] pet : the summoned pet, or `nil` if failed
+     */
+    int SummonPet(lua_State* L, Player* player)
+    {
+        uint32 entry = Eluna::CHECKVAL<uint32>(L, 2);
+        float x = Eluna::CHECKVAL<float>(L, 3);
+        float y = Eluna::CHECKVAL<float>(L, 4);
+        float z = Eluna::CHECKVAL<float>(L, 5);
+        float ang = Eluna::CHECKVAL<float>(L, 6);
+        uint32 petType = Eluna::CHECKVAL<uint32>(L, 7);
+        uint32 duration = Eluna::CHECKVAL<uint32>(L, 8, 0);
+        uint32 healthPct = Eluna::CHECKVAL<uint32>(L, 9, 0);
+
+        Pet* pet = player->SummonPet(entry, x, y, z, ang, static_cast<PetType>(petType), Milliseconds(duration), healthPct);
+        Eluna::Push(L, pet);
+        return 1;
+    }
+
+    /**
+     * Returns the average item level of the [Player]'s equipment.
+     *
+     * @return float averageItemLevel
+     */
+    int GetAverageItemLevel(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetAverageItemLevel());
+        return 1;
+    }
+
+    /**
+     * Creates a tamed [Pet] from a [Creature] or creature entry.
+     *
+     * Can be called with either:
+     * - `player:CreatePet(creatureEntry)` - creates pet from entry ID
+     * - `player:CreatePet(creature, spellID)` - tames existing creature
+     *
+     * @param uint32 creatureEntry : creature entry ID (first form)
+     * @param [Creature] creature : target creature to tame (second form)
+     * @param uint32 spellID = 0 : spell used for taming (second form)
+     * @return [Pet] pet : the created pet, or `nil` if failed
+     */
+    int CreatePet(lua_State* L, Player* player)
+    {
+        if (lua_gettop(L) == 2)
+        {
+            uint32 creatureEntry = Eluna::CHECKVAL<uint32>(L, 2);
+            Pet* pet = player->CreatePet(creatureEntry);
+            Eluna::Push(L, pet);
+        }
+        else
+        {
+            Creature* creatureTarget = Eluna::CHECKOBJ<Creature>(L, 2);
+            uint32 spellID = Eluna::CHECKVAL<uint32>(L, 3, 0);
+            Pet* pet = player->CreatePet(creatureTarget, spellID);
+            Eluna::Push(L, pet);
+        }
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] has completed the daily quest, `false` otherwise.
+     *
+     * @param uint32 questId
+     * @return bool isDailyQuestDone
+     */
+    int IsDailyQuestDone(lua_State* L, Player* player)
+    {
+        uint32 questId = Eluna::CHECKVAL<uint32>(L, 2);
+        Eluna::Push(L, player->IsDailyQuestDone(questId));
+        return 1;
+    }
+
+    /**
+     * Temporarily unsummons the [Player]'s current [Pet].
+     *
+     * The pet can be resummoned later. Used during teleportation, mounting, etc.
+     */
+    int UnsummonPetTemporarily(lua_State* /*L*/, Player* player)
+    {
+        player->UnsummonPetTemporaryIfAny();
+        return 0;
+    }
+
+    /**
+     * Sets the specified player flag on the [Player].
+     *
+     * @param uint32 flag : the player flag to set
+     */
+    int SetPlayerFlag(lua_State* L, Player* player)
+    {
+        uint32 flag = Eluna::CHECKVAL<uint32>(L, 2);
+        player->SetPlayerFlag((PlayerFlags)flag);
+        return 0;
+    }
+
+    /**
+     * Removes the specified [Pet] from the [Player].
+     *
+     * @param [Pet] pet : the pet to remove
+     * @param [PetSaveMode] mode : how to handle pet removal
+     * @param bool returnReagent = false : if `true`, returns reagents used to summon
+     */
+    int RemovePet(lua_State* L, Player* player)
+    {
+        Pet* pet = Eluna::CHECKOBJ<Pet>(L, 2);
+        uint32 mode = Eluna::CHECKVAL<uint32>(L, 3);
+        bool returnReagent = Eluna::CHECKVAL<bool>(L, 4, false);
+        player->RemovePet(pet, static_cast<PetSaveMode>(mode), returnReagent);
+        return 1;
+    }
+
+    /**
+     * Removes the specified player flag from the [Player].
+     *
+     * @param uint32 flag : the player flag to remove
+     */
+    int RemovePlayerFlag(lua_State* L, Player* player)
+    {
+        uint32 flag = Eluna::CHECKVAL<uint32>(L, 2);
+        player->RemovePlayerFlag((PlayerFlags)flag);
+        return 0;
+    }
+
+    /**
+     * Returns `true` if the [Player] can resurrect their [Pet] and returns `false` otherwise.
+     *
+     * @return bool canResurrect
+     */
+    int CanPetResurrect(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->CanPetResurrect());
+        return 1;
+    }
+
+    /**
+     * Returns a random number between the specified minimum and maximum values.
+     *
+     * @param uint32 minimum : the minimum value
+     * @param uint32 maximum : the maximum value
+     * @return uint32 randomValue : a random number between min and max
+     */
+    int DoRandomRoll(lua_State* L, Player* player)
+    {
+        uint32 minimum = Eluna::CHECKVAL<uint32>(L, 2);
+        uint32 maximum = Eluna::CHECKVAL<uint32>(L, 3);
+        Eluna::Push(L, player->DoRandomRoll(minimum, maximum));
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] is flagged for PvP, `false` otherwise.
+     *
+     * @return bool isPvP
+     */
+    int IsPvP(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->IsPvP());
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] is flagged for Free-for-all PvP, `false` otherwise.
+     *
+     * @return bool isFFAPvP
+     */
+    int IsFFAPvP(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->IsFFAPvP());
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] is using the Looking for Group system, `false` otherwise.
+     *
+     * @return bool isUsingLfg
+     */
+    int IsUsingLfg(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->IsUsingLfg());
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] is in a random LFG dungeon, `false` otherwise.
+     *
+     * @return bool inRandomLfgDungeon
+     */
+    int InRandomLfgDungeon(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->inRandomLfgDungeon());
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] can interact with the specified quest giver, `false` otherwise.
+     *
+     * @param [Object] questGiver : the quest giver object
+     * @return bool canInteract
+     */
+    int CanInteractWithQuestGiver(lua_State* L, Player* player)
+    {
+        Object* questGiver = Eluna::CHECKOBJ<Object>(L, 2);
+        Eluna::Push(L, player->CanInteractWithQuestGiver(questGiver));
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] can see the specified quest start, `false` otherwise.
+     *
+     * @param [Quest] quest : the quest to check
+     * @return bool canSeeStartQuest
+     */
+    int CanSeeStartQuest(lua_State* L, Player* player)
+    {
+        Quest const* quest = Eluna::CHECKOBJ<Quest>(L, 2);
+        Eluna::Push(L, player->CanSeeStartQuest(quest));
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] has a [Pet] (active or stored) and returns `false` otherwise.
+     *
+     * @return bool hasExistingPet
+     */
+    int IsExistPet(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->IsExistPet());
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] can take the specified quest, `false` otherwise.
+     *
+     * @param [Quest] quest : the quest to check
+     * @param bool msg : whether to send error messages
+     * @return bool canTakeQuest
+     */
+    int CanTakeQuest(lua_State* L, Player* player)
+    {
+        Quest const* quest = Eluna::CHECKOBJ<Quest>(L, 2);
+        bool msg = Eluna::CHECKVAL<bool>(L, 3, true);
+        Eluna::Push(L, player->CanTakeQuest(quest, msg));
+        return 1;
+    }
+
+    /**
+     * Resets the [Player]'s pet talents.
+     *
+     */
+    int ResetPetTalents(lua_State* /*L*/, Player* player)
+    {
+        player->ResetPetTalents();
+        return 0;
+    }
+
+    /**
+     * Returns `true` if the [Player] can add the specified quest, `false` otherwise.
+     *
+     * @param [Quest] quest : the quest to check
+     * @param bool msg : whether to send error messages
+     * @return bool canAddQuest
+     */
+    int CanAddQuest(lua_State* L, Player* player)
+    {
+        Quest const* quest = Eluna::CHECKOBJ<Quest>(L, 2);
+        bool msg = Eluna::CHECKVAL<bool>(L, 3, true);
+        Eluna::Push(L, player->CanAddQuest(quest, msg));
+        return 1;
+    }
+
+    /**
+     * Returns the barber shop cost for the specified style changes.
+     *
+     * @param uint8 newhairstyle : the new hair style
+     * @param uint8 newhaircolor : the new hair color
+     * @param uint8 newfacialhair : the new facial hair
+     * @return uint32 cost : the cost in copper
+     */
+    int GetBarberShopCost(lua_State* L, Player* player)
+    {
+        uint8 newhairstyle = Eluna::CHECKVAL<uint8>(L, 2);
+        uint8 newhaircolor = Eluna::CHECKVAL<uint8>(L, 3);
+        uint8 newfacialhair = Eluna::CHECKVAL<uint8>(L, 4);
+        Eluna::Push(L, player->GetBarberShopCost(newhairstyle, newhaircolor, newfacialhair));
+        return 1;
+    }
+
+    /**
+     * Returns the sight range of the [Player] for the specified target.
+     *
+     * @param [WorldObject] target : the target to check sight range for (optional)
+     * @return float sightRange
+     */
+    int GetSightRange(lua_State* L, Player* player)
+    {
+        WorldObject* target = Eluna::CHECKOBJ<WorldObject>(L, 2, false);
+        Eluna::Push(L, player->GetSightRange(target));
+        return 1;
+    }
+
+    /**
+     * Calculates reputation gain for the [Player].
+     *
+     * @param uint32 source : reputation source
+     * @param uint32 creatureOrQuestLevel : creature or quest level
+     * @param float rep : base reputation
+     * @param uint32 faction : faction ID
+     * @param bool noQuestBonus : whether to skip quest bonus
+     * @return float reputationGain
+     */
+    int CalculateReputationGain(lua_State* L, Player* player)
+    {
+        uint32 source = Eluna::CHECKVAL<uint32>(L, 2);
+        uint32 creatureOrQuestLevel = Eluna::CHECKVAL<uint32>(L, 3);
+        float rep = Eluna::CHECKVAL<float>(L, 4);
+        uint32 faction = Eluna::CHECKVAL<uint32>(L, 5);
+        bool noQuestBonus = Eluna::CHECKVAL<bool>(L, 6, false);
+        
+        Eluna::Push(L, player->CalculateReputationGain((ReputationSource)source, creatureOrQuestLevel, rep, faction, noQuestBonus));
+        return 1;
+    }
+
+    /**
+     * Applies environmental damage to the [Player].
+     *
+     * @param uint32 type : environmental damage type
+     * @param uint32 damage : damage amount
+     * @return uint32 actualDamage : the actual damage dealt
+     */
+    int EnvironmentalDamage(lua_State* L, Player* player)
+    {
+        uint32 type = Eluna::CHECKVAL<uint32>(L, 2);
+        uint32 damage = Eluna::CHECKVAL<uint32>(L, 3);
+        Eluna::Push(L, player->EnvironmentalDamage((EnviromentalDamage)type, damage));
+        return 1;
+    }
+
+    /**
+     * Initializes taxi nodes for the [Player]'s current level.
+     */
+    int InitTaxiNodesForLevel(lua_State* /*L*/, Player* player)
+    {
+        player->InitTaxiNodesForLevel();
+        return 0;
+    }
+
+    /**
+     * Learns a pet talent for the specified [Pet] of the [Player].
+     *
+     * @param ObjectGuid petGuid : GUID of the pet to learn the talent for
+     * @param uint32 talentId : ID of the talent to learn
+     * @param uint32 talentRank : rank of the talent to learn
+     */
+    int LearnPetTalent(lua_State* L, Player* player)
+    {
+        ObjectGuid petGuid = Eluna::CHECKVAL<ObjectGuid>(L, 2);
+        uint32 talentId = Eluna::CHECKVAL<uint32>(L, 3);
+        uint32 talentRank = Eluna::CHECKVAL<uint32>(L, 4);
+        player->LearnPetTalent(petGuid, talentId, talentRank);
+        return 0;
+    }
+
+    /**
+     * Returns `true` if the [Player] has a title by bit index, `false` otherwise.
+     *
+     * @param uint32 bitIndex : the title bit index to check
+     * @return bool hasTitle
+     */
+    int HasTitleByIndex(lua_State* L, Player* player)
+    {
+        uint32 bitIndex = Eluna::CHECKVAL<uint32>(L, 2);
+        Eluna::Push(L, player->HasTitle(bitIndex));
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] is at group reward distance from the target, `false` otherwise.
+     *
+     * @param [WorldObject] target : the target to check distance to
+     * @return bool isAtGroupRewardDistance
+     */
+    int IsAtGroupRewardDistance(lua_State* L, Player* player)
+    {
+        WorldObject const* target = Eluna::CHECKOBJ<WorldObject>(L, 2);
+        Eluna::Push(L, player->IsAtGroupRewardDistance(target));
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] is at loot reward distance from the target, `false` otherwise.
+     *
+     * @param [WorldObject] target : the target to check distance to
+     * @return bool isAtLootRewardDistance
+     */
+    int IsAtLootRewardDistance(lua_State* L, Player* player)
+    {
+        WorldObject const* target = Eluna::CHECKOBJ<WorldObject>(L, 2);
+        Eluna::Push(L, player->IsAtLootRewardDistance(target));
+        return 1;
+    }
+
+    /**
+     * Abandons a quest from the [Player]'s quest log.
+     *
+     * @param uint32 questId : the quest entry ID to abandon
+     */
+    int AbandonQuest(lua_State* L, Player* player)
+    {
+        uint32 questId = Eluna::CHECKVAL<uint32>(L, 2);
+        player->AbandonQuest(questId);
+        return 0;
+    }
+
+    /**
+     * Returns `true` if the [Player] can tame exotic pets, and `false` otherwise.
+     *
+     * @return bool canTameExoticPets : `true` if the player can tame exotic pets, `false` otherwise
+     */
+    int CanTameExoticPets(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->CanTameExoticPets());
+        return 1;
+    }
+
+    /**
+     * Returns the [Player]'s weapon proficiency flags.
+     *
+     * @return uint32 proficiencyFlags : bitmask of weapon proficiencies
+     */
+    int GetWeaponProficiency(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetWeaponProficiency());
+        return 1;
+    }
+
+    /**
+     * Returns the temporary unsummoned pet number for the [Player].
+     *
+     * @return uint32 petNumber : the temporary unsummoned pet number
+     */
+    int GetTemporaryUnsummonedPetNumber(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetTemporaryUnsummonedPetNumber());
+        return 1;
+    }
+
+    /**
+     * Returns the [Player]'s armor proficiency flags.
+     *
+     * @return uint32 proficiencyFlags : bitmask of armor proficiencies
+     */
+    int GetArmorProficiency(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetArmorProficiency());
+        return 1;
+    }
+
+    /**
+     * Sets the temporary unsummoned pet number for the [Player].
+     *
+     * @param uint32 petNumber : the pet number to set
+     */
+    int SetTemporaryUnsummonedPetNumber(lua_State* L, Player* player)
+    {
+        uint32 petNumber = Eluna::CHECKVAL<uint32>(L, 2);
+        player->SetTemporaryUnsummonedPetNumber(petNumber);
+        return 0;
+    }
+
+    /**
+     * Adds weapon proficiency to the [Player].
+     *
+     * @param uint32 flag : weapon proficiency flag to add
+     */
+    int AddWeaponProficiency(lua_State* L, Player* player)
+    {
+        uint32 flag = Eluna::CHECKVAL<uint32>(L, 2);
+        player->AddWeaponProficiency(flag);
+        return 0;
+    }
+
+    /**
+     * Resummons the [Player]'s pet if it was temporarily unsummoned.
+     *
+     */
+    int ResummonPetTemporaryUnSummonedIfAny(lua_State* /*L*/, Player* player)
+    {
+        player->ResummonPetTemporaryUnSummonedIfAny();
+        return 0;
+    }
+
+    /**
+     * Adds armor proficiency to the [Player].
+     *
+     * @param uint32 flag : armor proficiency flag to add
+     */
+    int AddArmorProficiency(lua_State* L, Player* player)
+    {
+        uint32 flag = Eluna::CHECKVAL<uint32>(L, 2);
+        player->AddArmorProficiency(flag);
+        return 0;
+    }
+
+    /**
+     * Returns `true` if the [Player] needs to temporarily unsummon their [Pet], and `false` otherwise.
+     *
+     *
+     * @return bool isPetNeedBeTemporaryUnsummoned : `true` if the pet needs to be temporarily unsummoned, `false` otherwise
+     */
+    int IsPetNeedBeTemporaryUnsummoned(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->IsPetNeedBeTemporaryUnsummoned());
+        return 1;
+    }
+
+    /**
+     * Sets the [Player]'s ammo item.
+     *
+     * @param uint32 itemEntry : ammo item entry ID
+     */
+    int SetAmmo(lua_State* L, Player* player)
+    {
+        uint32 itemEntry = Eluna::CHECKVAL<uint32>(L, 2);
+        player->SetAmmo(itemEntry);
+        return 0;
+    }
+
+    /**
+     * Removes the [Player]'s ammo.
+     */
+    int RemoveAmmo(lua_State* /*L*/, Player* player)
+    {
+        player->RemoveAmmo();
+        return 0;
+    }
+
+    /**
+     * Returns the [Player]'s ammo DPS.
+     *
+     * @return float ammoDPS : damage per second from ammo
+     */
+    int GetAmmoDPS(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetAmmoDPS());
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] can resummon a [Pet] with the specified spell ID, and `false` otherwise.
+     *
+     * @param uint32 spellId : the spell ID to check
+     * @return bool canResummon : `true` if the player can resummon the pet, `false` otherwise
+     */
+    int CanResummonPet(lua_State* L, Player* player)
+    {
+        uint32 spellId = Eluna::CHECKVAL<uint32>(L, 2);
+        Eluna::Push(L, player->CanResummonPet(spellId));
+        return 1;
+    }
+
+    /**
+     * Returns the [Player]'s shield item.
+     *
+     * @return [Item] shield : the equipped shield or nil
+     */
+    int GetShield(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetShield());
+        return 1;
+    }
+
+    /**
+     * Returns the last pet number for the [Player].
+     *
+     * @return uint32 petNumber : the last pet number
+     */
+    int GetLastPetNumber(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetLastPetNumber());
+        return 1;
+    }
+
+    /**
+     * Returns `true` if the [Player] can teleport, `false` otherwise.
+     *
+     * @return bool canTeleport
+     */
+    int CanTeleport(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->CanTeleport());
+        return 1;
+    }
+
+    /**
+     * Sets the last pet number for the [Player].
+     *
+     * @param uint32 petNumber : the pet number to set
+     */
+    int SetLastPetNumber(lua_State* L, Player* player)
+    {
+        uint32 petNumber = Eluna::CHECKVAL<uint32>(L, 2);
+        player->SetLastPetNumber(petNumber);
+        return 0;
+    }
+
+    /**
+     * Sets whether the [Player] can teleport.
+     *
+     * @param bool canTeleport : true to allow teleportation, false to disallow
+     */
+    int SetCanTeleport(lua_State* L, Player* player)
+    {
+        bool canTeleport = Eluna::CHECKVAL<bool>(L, 2);
+        player->SetCanTeleport(canTeleport);
+        return 0;
+    }
+
+    /**
+     * Returns the spell ID of the [Player]'s last [Pet] summoning spell.
+     *
+     * @return uint32 petSpell : the pet spell ID
+     */
+    int GetLastPetSpell(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetLastPetSpell());
+        return 1;
+    }
+
+    /**
+     * Returns the [Player]'s runes state for Death Knights.
+     *
+     * @return uint32 runesState : current runes state bitmask
+     */
+    int GetRunesState(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetRunesState());
+        return 1;
+    }
+
+    /**
+     * Sets the spell ID of the [Player]'s last [Pet] summoning spell.
+     *
+     * @param uint32 petSpell : the pet spell ID to set
+     */
+    int SetLastPetSpell(lua_State* L, Player* player)
+    {
+        uint32 petSpell = Eluna::CHECKVAL<uint32>(L, 2);
+        player->SetLastPetSpell(petSpell);
+        return 0;
+    }
+
+    /**
+     * Returns `true` if the [Player] is a spectator, `false` otherwise.
+     *
+     * @return bool isSpectator
+     */
+    int IsSpectator(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->IsSpectator());
+        return 1;
+    }
+
+    /**
+     * Sets the [Player] as spectator.
+     *
+     * @param bool isSpectator : true to set as spectator, false otherwise
+     */
+    int SetIsSpectator(lua_State* L, Player* player)
+    {
+        bool isSpectator = Eluna::CHECKVAL<bool>(L, 2);
+        player->SetIsSpectator(isSpectator);
+        return 0;
+    }
+
+    /**
+     * Returns `true` if the [Player] can see Death Knight [Pet]s, and `false` otherwise.
+     *
+     * @return bool canSeeDKPet
+     */
+    int CanSeeDKPet(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->CanSeeDKPet());
+        return 1;
+    }
+
+    /**
+     * Returns the [Player]'s current viewpoint target.
+     *
+     * @return [WorldObject] viewpoint : the object the player is viewing from
+     */
+    int GetViewpoint(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetViewpoint());
+        return 1;
+    }
+
+    /**
+     * Sets whether the [Player] can see Death  Knight [Pet]s.
+     *
+     * @param bool show : `true` to show DK pets, `false` to hide them
+     */
+    int SetShowDKPet(lua_State* L, Player* player)
+    {
+        bool show = Eluna::CHECKVAL<bool>(L, 2);
+        player->SetShowDKPet(show);
+        return 0;
+    }
+
+    /**
+     * Sets the [Player]'s viewpoint to the specified target.
+     *
+     * @param [WorldObject] target : the object to view from
+     */
+    int SetViewpoint(lua_State* L, Player* player)
+    {
+        WorldObject* target = Eluna::CHECKOBJ<WorldObject>(L, 2);
+        bool apply = Eluna::CHECKVAL<bool>(L, 3, false);
+        player->SetViewpoint(target, apply);
+        return 0;
+    }
+
+    /**
+     * Toggles instant flight mode for the [Player].
+     */
+    int ToggleInstantFlight(lua_State* /*L*/, Player* player)
+    {
+        player->ToggleInstantFlight();
+        return 0;
+    }
+
+    /**
+     * Returns the [Player]'s character creation time.
+     *
+     * @return uint32 creationTime : Unix timestamp of character creation
+     */
+    int GetCreationTime(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, static_cast<uint32>(player->GetCreationTime().count()));
+        return 1;
+    }
+
+    /**
+     * Sets the [Player]'s character creation time.
+     *
+     * @param uint32 creationTime : Unix timestamp to set as creation time
+     */
+    int SetCreationTime(lua_State* L, Player* player)
+    {
+        uint32 creationTime = Eluna::CHECKVAL<uint32>(L, 2);
+        player->SetCreationTime(Seconds(creationTime));
+        return 0;
+    }
+
+    /**
+     * Returns the [Player]'s dodge chance from agility.
+     *
+     * @return float dodgeChance : dodge percentage from agility stat
+     */
+    int GetDodgeFromAgility(lua_State* L, Player* player)
+    {
+        float diminishing, nondiminishing;
+        player->GetDodgeFromAgility(diminishing, nondiminishing);
+        Eluna::Push(L, diminishing + nondiminishing);
+        return 1;
+    }
+
+    /**
+     * Returns the [Player]'s melee critical hit chance from agility.
+     *
+     * @return float critChance : melee crit percentage from agility stat
+     */
+    int GetMeleeCritFromAgility(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetMeleeCritFromAgility());
+        return 1;
+    }
+
+    /**
+     * Returns the [Player]'s spell critical hit chance from intellect.
+     *
+     * @return float critChance : spell crit percentage from intellect stat
+     */
+    int GetSpellCritFromIntellect(lua_State* L, Player* player)
+    {
+        Eluna::Push(L, player->GetSpellCritFromIntellect());
+        return 1;
+    }
+
+    /**
+     * Returns an item from the [Player]'s inventory by slot.
+     *
+     * @param uint32 slot : inventory slot number
+     * @return [Item] item : the item in the specified slot or nil
+     */
+    int GetInventoryItem(lua_State* L, Player* player)
+    {
+        uint32 slot = Eluna::CHECKVAL<uint32>(L, 2);
+        if (slot >= INVENTORY_SLOT_ITEM_END)
+            return 1;
+        Eluna::Push(L, player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot));
+        return 1;
+    }
+
+    /**
+     * Returns an item from the [Player]'s bank by slot.
+     *
+     * @param uint32 slot : bank slot number
+     * @return [Item] item : the item in the specified bank slot or nil
+     */
+    int GetBankItem(lua_State* L, Player* player)
+    {
+        uint32 slot = Eluna::CHECKVAL<uint32>(L, 2);
+        if (slot >= BANK_SLOT_ITEM_END)
+            return 1;
+        Eluna::Push(L, player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot + BANK_SLOT_ITEM_START));
+        return 1;
     }
 };
 #endif
