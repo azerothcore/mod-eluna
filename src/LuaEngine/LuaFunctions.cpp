@@ -42,6 +42,8 @@ extern "C"
 #include "RollMethods.h"
 #include "TicketMethods.h"
 #include "SpellInfoMethods.h"
+#include "PetMethods.h"
+#include "LootMethods.h"
 
 // DBCStores includes
 #include "GemPropertiesEntryMethods.h"
@@ -545,8 +547,16 @@ ElunaRegister<Player> PlayerMethods[] =
     { "GetTrader", &LuaPlayer::GetTrader },
     { "GetBonusTalentCount", &LuaPlayer::GetBonusTalentCount },
     { "GetKnownTaxiNodes", &LuaPlayer::GetKnownTaxiNodes },
+    { "GetPet", &LuaPlayer::GetPet },
+    { "GetTemporaryUnsummonedPetNumber", &LuaPlayer::GetTemporaryUnsummonedPetNumber },
+    { "GetLastPetNumber", &LuaPlayer::GetLastPetNumber },
+    { "GetLastPetSpell", &LuaPlayer::GetLastPetSpell },
 
     // Setters
+    { "SetTemporaryUnsummonedPetNumber", &LuaPlayer::SetTemporaryUnsummonedPetNumber },
+    { "SetLastPetNumber", &LuaPlayer::SetLastPetNumber },
+    { "SetLastPetSpell", &LuaPlayer::SetLastPetSpell },
+    { "SetShowDKPet", &LuaPlayer::SetShowDKPet },
     { "AdvanceSkillsToMax", &LuaPlayer::AdvanceSkillsToMax },
     { "AdvanceSkill", &LuaPlayer::AdvanceSkill },
     { "AdvanceAllSkills", &LuaPlayer::AdvanceAllSkills },
@@ -669,6 +679,12 @@ ElunaRegister<Player> PlayerMethods[] =
     { "CanFly", &LuaPlayer::CanFly },
     { "IsMoving", &LuaPlayer::IsMoving },
     { "IsFlying", &LuaPlayer::IsFlying },
+    { "CanPetResurrect", &LuaPlayer::CanPetResurrect },
+    { "IsExistPet", &LuaPlayer::IsExistPet },
+    { "CanTameExoticPets", &LuaPlayer::CanTameExoticPets },
+    { "IsPetNeedBeTemporaryUnsummoned", &LuaPlayer::IsPetNeedBeTemporaryUnsummoned },
+    { "CanResummonPet", &LuaPlayer::CanResummonPet },
+    { "CanSeeDKPet", &LuaPlayer::CanSeeDKPet },
     { "IsMaxLevel", &LuaPlayer::IsMaxLevel },
     { "IsDailyQuestDone", &LuaPlayer::IsDailyQuestDone },
     { "IsPvP", &LuaPlayer::IsPvP },
@@ -787,6 +803,13 @@ ElunaRegister<Player> PlayerMethods[] =
     { "SendMovieStart", &LuaPlayer::SendMovieStart },
     { "UpdatePlayerSetting", &LuaPlayer::UpdatePlayerSetting },
     { "TeleportTo", &LuaPlayer::TeleportTo },
+    { "SummonPet", &LuaPlayer::SummonPet },
+    { "CreatePet", &LuaPlayer::CreatePet },
+    { "UnsummonPetTemporarily", &LuaPlayer::UnsummonPetTemporarily },
+    { "RemovePet", &LuaPlayer::RemovePet },
+    { "ResetPetTalents", &LuaPlayer::ResetPetTalents },
+    { "LearnPetTalent", &LuaPlayer::LearnPetTalent },
+    { "ResummonPetTemporaryUnSummonedIfAny", &LuaPlayer::ResummonPetTemporaryUnSummonedIfAny },
     { "SetPlayerFlag", &LuaPlayer::SetPlayerFlag },
     { "RemovePlayerFlag", &LuaPlayer::RemovePlayerFlag },
     { "DoRandomRoll", &LuaPlayer::DoRandomRoll },
@@ -837,6 +860,7 @@ ElunaRegister<Creature> CreatureMethods[] =
     { "GetDBTableGUIDLow", &LuaCreature::GetDBTableGUIDLow },
     { "GetCreatureFamily", &LuaCreature::GetCreatureFamily },
     { "GetReactState", &LuaCreature::GetReactState },
+    { "GetLoot", &LuaCreature::GetLoot },
 
     // Setters
     { "SetRegeneratingHealth", &LuaCreature::SetRegeneratingHealth },
@@ -1655,6 +1679,106 @@ ElunaRegister<SpellEntry> SpellEntryMethods[] =
     { "SetPreventionType", &LuaSpellEntry::SetPreventionType },
     { "SetSchoolMask", &LuaSpellEntry::SetSchoolMask },
     { "SetRuneCostID", &LuaSpellEntry::SetRuneCostID },
+
+    { NULL, NULL }
+};
+
+ElunaRegister<Pet> PetMethods[] =
+{
+    // Getters
+    { "GetPetType", &LuaPet::GetPetType },
+    { "GetDuration", &LuaPet::GetDuration },
+    { "GetHappinessState", &LuaPet::GetHappinessState },
+    { "GetCurrentFoodBenefitLevel", &LuaPet::GetCurrentFoodBenefitLevel },
+    { "GetMaxTalentPointsForLevel", &LuaPet::GetMaxTalentPointsForLevel },
+    { "GetFreeTalentPoints", &LuaPet::GetFreeTalentPoints },
+    { "GetUsedTalentCount", &LuaPet::GetUsedTalentCount },
+    { "GetAuraUpdateMaskForRaid", &LuaPet::GetAuraUpdateMaskForRaid },
+    { "GetOwner", &LuaPet::GetOwner },
+    { "GetPetAutoSpellSize", &LuaPet::GetPetAutoSpellSize },
+    { "GetPetAutoSpellOnPos", &LuaPet::GetPetAutoSpellOnPos },
+
+    // Setters
+    { "SetPetType", &LuaPet::SetPetType },
+    { "SetDuration", &LuaPet::SetDuration },
+    { "SetFreeTalentPoints", &LuaPet::SetFreeTalentPoints },
+    { "SetUsedTalentCount", &LuaPet::SetUsedTalentCount },
+    { "SetAuraUpdateMaskForRaid", &LuaPet::SetAuraUpdateMaskForRaid },
+    { "SetRemoved", &LuaPet::SetRemoved },
+
+    // Boolean
+    { "IsControlled", &LuaPet::IsControlled },
+    { "IsTemporarySummoned", &LuaPet::IsTemporarySummoned },
+    { "IsPermanentPetFor", &LuaPet::IsPermanentPetFor },
+    { "HaveInDiet", &LuaPet::HaveInDiet },
+    { "HasTempSpell", &LuaPet::HasTempSpell },
+    { "IsRemoved", &LuaPet::IsRemoved },
+    { "IsBeingLoaded", &LuaPet::IsBeingLoaded },
+
+    // Other
+    { "CreateBaseAtCreature", &LuaPet::CreateBaseAtCreature },
+    { "GivePetXP", &LuaPet::GivePetXP },
+    { "GivePetLevel", &LuaPet::GivePetLevel },
+    { "SynchronizeLevelWithOwner", &LuaPet::SynchronizeLevelWithOwner },
+    { "ToggleAutocast", &LuaPet::ToggleAutocast },
+    { "LearnPetPassives", &LuaPet::LearnPetPassives },
+    { "CastWhenWillAvailable", &LuaPet::CastWhenWillAvailable },
+    { "ClearCastWhenWillAvailable", &LuaPet::ClearCastWhenWillAvailable },
+    { "AddSpell", &LuaPet::AddSpell },
+    { "LearnSpell", &LuaPet::LearnSpell },
+    { "LearnSpellHighRank", &LuaPet::LearnSpellHighRank },
+    { "InitLevelupSpellsForLevel", &LuaPet::InitLevelupSpellsForLevel },
+    { "UnlearnSpell", &LuaPet::UnlearnSpell },
+    { "RemoveSpell", &LuaPet::RemoveSpell },
+    { "CleanupActionBar", &LuaPet::CleanupActionBar },
+    { "GenerateActionBarData", &LuaPet::GenerateActionBarData },
+    { "InitPetCreateSpells", &LuaPet::InitPetCreateSpells },
+    { "ResetTalents", &LuaPet::ResetTalents },
+    { "InitTalentForLevel", &LuaPet::InitTalentForLevel },
+    { "ResetAuraUpdateMaskForRaid", &LuaPet::ResetAuraUpdateMaskForRaid },
+    { "SavePetToDB", &LuaPet::SavePetToDB },
+    { "Remove", &LuaPet::Remove },
+
+    { NULL, NULL }
+};
+
+ElunaRegister<Loot> LootMethods[] =
+{
+    // Get
+    { "GetMoney", &LuaLoot::GetMoney },
+    { "GetItems", &LuaLoot::GetItems },
+    { "GetUnlootedCount", &LuaLoot::GetUnlootedCount },
+    { "GetLootType", &LuaLoot::GetLootType },
+    { "GetRoundRobinPlayer", &LuaLoot::GetRoundRobinPlayer },
+    { "GetLootOwner", &LuaLoot::GetLootOwner },
+    { "GetContainer", &LuaLoot::GetContainer },
+    { "GetSourceWorldObject", &LuaLoot::GetSourceWorldObject },
+    { "GetItemCount", &LuaLoot::GetItemCount },
+    { "GetMaxSlotForPlayer", &LuaLoot::GetMaxSlotForPlayer },
+
+    // Set
+    { "AddItem", &LuaLoot::AddItem },
+    { "RemoveItem", &LuaLoot::RemoveItem },
+    { "SetMoney", &LuaLoot::SetMoney },
+    { "SetUnlootedCount", &LuaLoot::SetUnlootedCount },
+    { "UpdateItemIndex", &LuaLoot::UpdateItemIndex },
+    { "SetItemLooted", &LuaLoot::SetItemLooted },
+    { "SetLootType", &LuaLoot::SetLootType },
+    { "SetRoundRobinPlayer", &LuaLoot::SetRoundRobinPlayer },
+    { "SetLootOwner", &LuaLoot::SetLootOwner },
+    { "SetContainer", &LuaLoot::SetContainer },
+    { "SetSourceWorldObject", &LuaLoot::SetSourceWorldObject },
+    { "Clear", &LuaLoot::Clear },
+    { "AddLooter", &LuaLoot::AddLooter },
+    { "RemoveLooter", &LuaLoot::RemoveLooter },
+
+    // Boolean
+    { "HasItem", &LuaLoot::HasItem },
+    { "HasQuestItems", &LuaLoot::HasQuestItems },
+    { "HasItemForAll", &LuaLoot::HasItemForAll },
+    { "HasOverThresholdItem", &LuaLoot::HasOverThresholdItem },
+    { "IsLooted", &LuaLoot::IsLooted },
+    { "IsEmpty", &LuaLoot::IsEmpty },
 
     { NULL, NULL }
 };
