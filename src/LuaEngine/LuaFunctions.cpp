@@ -941,7 +941,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     { "GetLootState", &LuaGameObject::GetLootState },
     { "GetLootRecipient", &LuaGameObject::GetLootRecipient },
     { "GetLootRecipientGroup", &LuaGameObject::GetLootRecipientGroup },
-    { "GetDBTableGUIDLow", &LuaGameObject::GetDBTableGUIDLow },
+    { "GetSpawnId", &LuaGameObject::GetSpawnId },
 
     // Setters
     { "SetGoState", &LuaGameObject::SetGoState },
