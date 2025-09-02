@@ -146,11 +146,11 @@ namespace LuaGameObject
     }
 
     /**
-     * Returns the guid of the [GameObject] that is used as the ID in the database
-     *
-     * @return uint32 dbguid
-     */
-    int GetDBTableGUIDLow(lua_State* L, GameObject* go)
+    * Returns the spawn ID for this [GameObject].
+    *
+    * @return uint32 spawnId
+    */
+    int GetSpawnId(lua_State* L, GameObject* go)
     {
         Eluna::Push(L, go->GetSpawnId());
         return 1;
