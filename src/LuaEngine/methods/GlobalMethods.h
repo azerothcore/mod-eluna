@@ -56,6 +56,49 @@ namespace LuaGlobalFunctions
     }
 
     /**
+     * Returns config value as a string.
+     *
+     * @param string name : name of the value
+     * @return string value
+     */
+    int GetConfigValue(lua_State* L)
+    {
+        const char* key = Eluna::CHECKVAL<const char*>(L, 1);
+        if (!key) return 0;
+        
+        std::string val = sConfigMgr->GetOption<std::string>(key, "", false);
+
+        if (val.empty())
+        {
+            Eluna::Push(L, val);
+            return 1;
+        }
+
+        std::string lower = val;
+        std::transform(lower.begin(), lower.end(), lower.begin(), ::tolower);
+        
+        if (lower == "true")
+        {
+            Eluna::Push(L, true);
+            return 1;
+        }
+        else if (lower == "false")
+        {
+            Eluna::Push(L, false);
+            return 1;
+        }
+        
+        auto intVal = Acore::StringTo<uint32>(val);
+        if (intVal) {
+            Eluna::Push(L, *intVal);
+            return 1;
+        }
+        
+        Eluna::Push(L, val);
+        return 1;
+    }
+
+    /**
      * Returns emulator .conf RealmID
      *
      * - for MaNGOS returns the realmID as it is stored in the core.
