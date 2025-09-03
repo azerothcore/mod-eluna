@@ -108,13 +108,7 @@ make -j$(nproc)
 We welcome contributions from the community! Here's how you can help:
 
 ### Development Workflow
-```mermaid
-graph LR
-    A[Fork Repository] --> B[Create Branch]
-    B --> C[Make Changes]
-    C --> D[Submit PR]
-    D --> E[Review Process]
-```
+![](.github/images/workflow.svg "workflow example")
 
 ### Contribution Guidelines
 1. **Fork** the repository
