@@ -435,6 +435,17 @@ namespace LuaCreature
     }
 
     /**
+    * Returns the spawn ID for this [Creature].
+    *
+    * @return uint32 spawnId
+    */
+    int GetSpawnId(lua_State* L, Creature* creature)
+    {
+        Eluna::Push(L, creature->GetSpawnId());
+        return 1;
+    }
+
+    /**
      * Returns the default movement type for this [Creature].
      *
      * @return [MovementGeneratorType] defaultMovementType
@@ -842,6 +853,27 @@ namespace LuaCreature
     }
 
     /**
+     * Returns the [Creature]'s current ReactState.
+     *
+     * <pre>
+     * enum ReactState
+     * {
+     *     REACT_PASSIVE       = 0,
+     *     REACT_DEFENSIVE     = 1,
+     *     REACT_AGGRESSIVE    = 2
+     * };
+     * </pre>
+     *
+     * @return [ReactState] state
+     */
+    int GetReactState(lua_State* L, Creature* creature)
+    {
+        ReactStates state = creature->GetReactState();
+        lua_pushinteger(L, (int)state);
+        return 1;
+    }
+
+    /**
      * Sets the [Creature]'s NPC flags to `flags`.
      *
      * @param [NPCFlags] flags
@@ -1114,6 +1146,18 @@ namespace LuaCreature
     }
 
     /**
+     * Sets the time it takes for the [Creature]'s corpse to despawn when killed.
+     *
+     * @param uint32 delay : the delay, in seconds
+     */
+    int SetCorpseDelay(lua_State* L, Creature* creature)
+    {
+        uint32 delay = Eluna::CHECKVAL<uint32>(L, 2);
+        creature->SetCorpseDelay(delay);
+        return 0;
+    }
+
+    /**
      * Make the [Creature] start following its waypoint path.
      */
     int MoveWaypoint(lua_State* /*L*/, Creature* creature)
@@ -1299,6 +1343,17 @@ namespace LuaCreature
         if (cInfo)
             Eluna::Push(L, cInfo->family);
 
+        return 1;
+    }
+
+    /**
+     * Returns the [Creature]'s loot.
+     *
+     * @return [Loot] loot : the loot object
+     */
+    int GetLoot(lua_State*L, Creature* creature)
+    {
+        Eluna::Push(L, &creature->loot);
         return 1;
     }
 };

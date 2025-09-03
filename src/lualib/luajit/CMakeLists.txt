@@ -29,6 +29,13 @@
 
 project ( lua C )
 
+# Remove -Werror from flags for LuaJIT compilation
+string(REGEX REPLACE "-Werror" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+string(REGEX REPLACE "-Werror" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+# Also remove any warning-as-error flags
+string(REGEX REPLACE "-Wno-error=[^ ]*" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+string(REGEX REPLACE "-Wno-error=[^ ]*" "" CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+
 # Download source
 include(FetchContent)
 FetchContent_Declare(
@@ -60,6 +67,7 @@ if (WIN32)
     PROPERTIES
     IMPORTED_LOCATION ${LUA_BIN_FOLDER}/src/lua51.lib
     INTERFACE_INCLUDE_DIRECTORIES "${LUA_SRC_FOLDER}/src"
+    INTERFACE_COMPILE_DEFINITIONS "LUAJIT_VERSION=1"
     )
 
     # install generated files
@@ -92,6 +100,7 @@ if (WIN32)
     IMPORTED_LOCATION ${LUA_BIN_FOLDER}/src/lua51.dll
     IMPORTED_IMPLIB ${LUA_BIN_FOLDER}/src/lua51.lib
     INTERFACE_INCLUDE_DIRECTORIES "${LUA_SRC_FOLDER}/src"
+    INTERFACE_COMPILE_DEFINITIONS "LUAJIT_VERSION=1"
     )
 
     # install generated files
@@ -129,7 +138,7 @@ if (UNIX OR APPLE)
     add_custom_command(
       OUTPUT ${LUAJIT_LIB_PATH}
       # COMMAND $(MAKE) -C ${LUA_BIN_FOLDER} PREFIX=${LUA_INSTALL_PATH}
-      COMMAND $(MAKE) -C ${LUA_BIN_FOLDER} install PREFIX=${LUA_INSTALL_PATH}
+      COMMAND make -C ${LUA_BIN_FOLDER} install PREFIX=${LUA_INSTALL_PATH} "CFLAGS=-O2 -fomit-frame-pointer -Wno-empty-body -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-sign-compare -Wno-string-plus-int"
     )
   # endif()
   add_custom_target(luajit_target DEPENDS ${LUAJIT_LIB_PATH})
@@ -147,10 +156,12 @@ if (UNIX OR APPLE)
   PROPERTIES
   # IMPORTED_LOCATION ${LUAJIT_LIB_PATH} # cmake bullshit. spent days figuring this and turns out set_target_properties does squat shit while set_property works fine.
   INTERFACE_INCLUDE_DIRECTORIES "${LUA_SRC_FOLDER}/src"
+  INTERFACE_COMPILE_DEFINITIONS "LUAJIT_VERSION=1"
   )
   set_property(TARGET lualib PROPERTY IMPORTED_LOCATION ${LUAJIT_LIB_PATH})
 
   # install generated files
   install(DIRECTORY ${LUA_INSTALL_PATH}/ DESTINATION ${CMAKE_INSTALL_PREFIX})
 endif()
+
 

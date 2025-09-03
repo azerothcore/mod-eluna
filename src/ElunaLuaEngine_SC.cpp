@@ -69,6 +69,7 @@ public:
 
     bool CanCreatureQuestAccept(Player* player, Creature* creature, Quest const* quest) override
     {
+        sEluna->OnPlayerQuestAccept(player, quest);
         sEluna->OnQuestAccept(player, creature, quest);
         return false;
     }
@@ -146,6 +147,7 @@ public:
 
     bool CanGameObjectQuestAccept(Player* player, GameObject* go, Quest const* quest) override
     {
+        sEluna->OnPlayerQuestAccept(player, quest);
         sEluna->OnQuestAccept(player, go, quest);
         return false;
     }
@@ -169,7 +171,10 @@ public:
     bool CanGameObjectQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 opt) override
     {
         if (sEluna->OnQuestAccept(player, go, quest))
+        {
+            sEluna->OnPlayerQuestAccept(player, quest);
             return false;
+        }
 
         if (sEluna->OnQuestReward(player, go, quest, opt))
             return false;
@@ -192,7 +197,10 @@ public:
     bool CanItemQuestAccept(Player* player, Item* item, Quest const* quest) override
     {
         if (sEluna->OnQuestAccept(player, item, quest))
+        {
+            sEluna->OnPlayerQuestAccept(player, quest);
             return false;
+        }
 
         return true;
     }
@@ -1010,19 +1018,6 @@ public:
     }
 };
 
-class Eluna_UnitScript : public UnitScript
-{
-public:
-    Eluna_UnitScript() : UnitScript("Eluna_UnitScript", true, {
-        UNITHOOK_ON_UNIT_UPDATE
-    }) { }
-
-    void OnUnitUpdate(Unit* unit, uint32 diff) override
-    {
-        unit->elunaEvents->Update(diff);
-    }
-};
-
 class Eluna_VehicleScript : public VehicleScript
 {
 public:
@@ -1216,7 +1211,6 @@ void AddSC_ElunaLuaEngine()
     new Eluna_ServerScript();
     new Eluna_SpellSC();
     new Eluna_TicketScript();
-    new Eluna_UnitScript();
     new Eluna_VehicleScript();
     new Eluna_WorldObjectScript();
     new Eluna_WorldScript();

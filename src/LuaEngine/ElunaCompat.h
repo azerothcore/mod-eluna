@@ -27,6 +27,10 @@ extern "C"
     #define lua_load(L, buf_read, dec_buf, str, NULL) \
         lua_load(L, buf_read, dec_buf, str)
 
+    #ifndef LUA_OK
+        #define LUA_OK 0
+    #endif
+
 #if !defined LUAJIT_VERSION
     void* luaL_testudata(lua_State* L, int index, const char* tname);
     void luaL_setmetatable(lua_State* L, const char* tname);
