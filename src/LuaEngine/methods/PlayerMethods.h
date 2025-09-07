@@ -3091,7 +3091,7 @@ namespace LuaPlayer
             if (player->HasSkill(_skillId))
             {
                 Eluna::Push(L, player->UpdateSkill(_skillId, _step));
-                return 0;				
+                return 1;				
             }
         Eluna::Push(L, false);
         return 1;
