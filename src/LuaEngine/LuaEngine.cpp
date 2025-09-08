@@ -78,7 +78,7 @@ void Eluna::Initialize()
     GEluna = new Eluna();
 
     // Start file watcher if enabled
-    if (eConfigMgr->GetOption<bool>("Eluna.AutoReload", false))
+    if (ElunaConfig::GetInstance().IsAutoReloadEnabled())
     {
         uint32 watchInterval = eConfigMgr->GetOption<uint32>("Eluna.AutoReloadInterval", 1);
         fileWatcher = std::make_unique<ElunaFileWatcher>();
@@ -117,9 +117,9 @@ void Eluna::LoadScriptPaths()
     lua_scripts.clear();
     lua_extensions.clear();
 
-    lua_folderpath = eConfigMgr->GetOption<std::string>("Eluna.ScriptPath", "lua_scripts");
-    const std::string& lua_path_extra = eConfigMgr->GetOption<std::string>("Eluna.RequirePaths", "");
-    const std::string& lua_cpath_extra = eConfigMgr->GetOption<std::string>("Eluna.RequireCPaths", "");
+    lua_folderpath = ElunaConfig::GetInstance().GetScriptPath();
+    const std::string& lua_path_extra = static_cast<std::string>(ElunaConfig::GetInstance().GetRequirePath());
+    const std::string& lua_cpath_extra = static_cast<std::string>(ElunaConfig::GetInstance().GetRequireCPath());
 
 #ifndef ELUNA_WINDOWS
     if (lua_folderpath[0] == '~')
@@ -182,7 +182,6 @@ void Eluna::_ReloadEluna()
 Eluna::Eluna() :
 event_level(0),
 push_counter(0),
-enabled(false),
 
 L(NULL),
 eventMgr(NULL),
@@ -249,9 +248,7 @@ void Eluna::CloseLua()
 
 void Eluna::OpenLua()
 {
-    enabled = eConfigMgr->GetOption<bool>("Eluna.Enabled", true);
-
-    if (!IsEnabled())
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())
     {
         ELUNA_LOG_INFO("[Eluna]: Eluna is disabled in config");
         return;
@@ -532,7 +529,7 @@ int Eluna::TryLoadFromGlobalCache(lua_State* L, const std::string& filepath)
 
 int Eluna::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool isMoonScript, uint32* compiledCount, uint32* cachedCount)
 {
-    bool cacheEnabled = eConfigMgr->GetOption<bool>("Eluna.BytecodeCache", true);
+    bool cacheEnabled = ElunaConfig::GetInstance().IsByteCodeCacheEnabled();
     
     if (cacheEnabled)
     {
@@ -671,7 +668,7 @@ static bool ScriptPathComparator(const LuaScript& first, const LuaScript& second
 void Eluna::RunScripts()
 {
     LOCK_ELUNA;
-    if (!IsEnabled())
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())
         return;
 
     uint32 oldMSTime = ElunaUtil::GetCurrTime();
@@ -855,7 +852,7 @@ bool Eluna::ExecuteCall(int params, int res)
         ASSERT(false); // stack probably corrupt
     }
 
-    bool usetrace = eConfigMgr->GetOption<bool>("Eluna.TraceBack", false);
+    bool usetrace = ElunaConfig::GetInstance().IsTraceBackEnabled();
     if (usetrace)
     {
         lua_pushcfunction(L, &StackTrace);
@@ -1576,7 +1573,7 @@ int Eluna::CallOneFunction(int number_of_functions, int number_of_arguments, int
 
 CreatureAI* Eluna::GetAI(Creature* creature)
 {
-    if (!IsEnabled())
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())
         return NULL;
 
     for (int i = 1; i < Hooks::CREATURE_EVENT_COUNT; ++i)
@@ -1596,7 +1593,7 @@ CreatureAI* Eluna::GetAI(Creature* creature)
 
 InstanceData* Eluna::GetInstanceData(Map* map)
 {
-    if (!IsEnabled())
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())
         return NULL;
 
     for (int i = 1; i < Hooks::INSTANCE_EVENT_COUNT; ++i)
@@ -1662,7 +1659,7 @@ void Eluna::FreeInstanceId(uint32 instanceId)
 {
     LOCK_ELUNA;
 
-    if (!IsEnabled())
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())
         return;
 
     for (int i = 1; i < Hooks::INSTANCE_EVENT_COUNT; ++i)

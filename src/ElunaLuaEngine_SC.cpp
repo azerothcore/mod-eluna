@@ -1105,6 +1105,7 @@ public:
 
     void OnBeforeConfigLoad(bool reload) override
     {
+        ElunaConfig::GetInstance().Initialize(reload);
         if (!reload)
         {
             ///- Initialize Lua Engine

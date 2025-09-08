@@ -15,7 +15,7 @@
 using namespace Hooks;
 
 #define START_HOOK(EVENT, AI) \
-    if (!IsEnabled())\
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())\
         return;\
     auto mapKey = EntryKey<InstanceEvents>(EVENT, AI->instance->GetId());\
     auto instanceKey = EntryKey<InstanceEvents>(EVENT, AI->instance->GetInstanceId());\
@@ -26,7 +26,7 @@ using namespace Hooks;
     Push(AI->instance)
 
 #define START_HOOK_WITH_RETVAL(EVENT, AI, RETVAL) \
-    if (!IsEnabled())\
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())\
         return RETVAL;\
     auto mapKey = EntryKey<InstanceEvents>(EVENT, AI->instance->GetId());\
     auto instanceKey = EntryKey<InstanceEvents>(EVENT, AI->instance->GetInstanceId());\

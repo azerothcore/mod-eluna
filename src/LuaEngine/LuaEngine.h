@@ -23,8 +23,9 @@
 #include "HttpManager.h"
 #include "EventEmitter.h"
 #include "TicketMgr.h"
-#include "ElunaFileWatcher.h"
 #include "LootMgr.h"
+#include "ElunaFileWatcher.h"
+#include "ElunaConfig.h"
 #include <mutex>
 #include <memory>
 #include <vector>
@@ -145,7 +146,6 @@ private:
     // When a hook pushes arguments to be passed to event handlers,
     //  this is used to keep track of how many arguments were pushed.
     uint8 push_counter;
-    bool enabled;
 
     // Map from instance ID -> Lua table ref
     std::unordered_map<uint32, int> instanceDataRefs;
@@ -335,7 +335,6 @@ public:
 
     void RunScripts();
     bool ShouldReload() const { return reload; }
-    bool IsEnabled() const { return enabled && IsInitialized(); }
     bool HasLuaState() const { return L != NULL; }
     uint64 GetCallstackId() const { return callstackid; }
     int Register(lua_State* L, uint8 reg, uint32 entry, ObjectGuid guid, uint32 instanceId, uint32 event_id, int functionRef, uint32 shots);
