@@ -3087,13 +3087,12 @@ namespace LuaPlayer
     {
         uint32 _skillId = Eluna::CHECKVAL<uint32>(L, 2);
         uint32 _step = Eluna::CHECKVAL<uint32>(L, 3);
-        if (_skillId && _step)
-            if (player->HasSkill(_skillId))
-            {
-                Eluna::Push(L, player->UpdateSkill(_skillId, _step));
-                return 1;				
-            }
-        Eluna::Push(L, false);
+        bool success = false;
+        if (_skillId && _step && player->HasSkill(_skillId))
+        {
+            success = player->UpdateSkill(_skillId, _step);
+        }
+        Eluna::Push(L, success);
         return 1;
     }
 
