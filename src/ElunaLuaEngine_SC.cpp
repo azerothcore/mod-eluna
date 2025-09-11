@@ -57,6 +57,7 @@ public:
     void OnCreatureAddWorld(Creature* creature) override
     {
         sEluna->OnAddToWorld(creature);
+        sEluna->OnAllCreatureAddToWorld(creature);
 
         if (creature->IsGuardian() && creature->ToTempSummon() && creature->ToTempSummon()->GetSummonerGUID().IsPlayer())
             sEluna->OnPetAddedToWorld(creature->ToTempSummon()->GetSummonerUnit()->ToPlayer(), creature);
@@ -65,6 +66,7 @@ public:
     void OnCreatureRemoveWorld(Creature* creature) override
     {
         sEluna->OnRemoveFromWorld(creature);
+        sEluna->OnAllCreatureRemoveFromWorld(creature);
     }
 
     bool CanCreatureQuestAccept(Player* player, Creature* creature, Quest const* quest) override
@@ -91,6 +93,16 @@ public:
             return luaAI;
 
         return nullptr;
+    }
+
+    void OnCreatureSelectLevel(const CreatureTemplate* cinfo, Creature* creature) override
+    {
+        sEluna->OnAllCreatureSelectLevel(cinfo, creature);
+    }
+
+    void OnBeforeCreatureSelectLevel(const CreatureTemplate* cinfo, Creature* creature, uint8& level) override
+    {
+        sEluna->OnAllCreatureBeforeSelectLevel(cinfo, creature, level);
     }
 };
 

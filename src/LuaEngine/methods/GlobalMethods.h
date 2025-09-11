@@ -1328,6 +1328,29 @@ namespace LuaGlobalFunctions
     }
 
     /**
+     * Registers a [Creature] event handler. It used AllCreatureScript so this don't need creature entry as a key.
+     *
+     * <pre>
+     * enum AllCreatureEvents
+     * {
+     *     ALL_CREATURE_EVENT_ON_ADD                       = 1, // (event, creature)
+     *     ALL_CREATURE_EVENT_ON_REMOVE                    = 2, // (event, creature)
+     *     ALL_CREATURE_EVENT_ON_SELECT_LEVEL              = 3, // (event, creature_template, creature)
+     *     ALL_CREATURE_EVENT_ON_BEFORE_SELECT_LEVEL       = 4, // (event, creature_template, creature, level) - Can return the new level
+     *     ALL_CREATURE_EVENT_COUNT
+     * };
+     * </pre>
+     *
+     * @param uint32 event : event ID, refer to AllCreatureEvents above
+     * @param function function : function to register
+     * @param uint32 shots = 0 : the number of times the function will be called, 0 means "always call this function"
+     */
+    int RegisterAllCreatureEvent(lua_State* L)
+    {
+        return RegisterEventHelper(L, Hooks::REGTYPE_ALL_CREATURE);
+    }
+
+    /**
      * Reloads the Lua engine.
      */
     int ReloadEluna(lua_State* /*L*/)
@@ -3289,6 +3312,33 @@ namespace LuaGlobalFunctions
             uint32 entry = Eluna::CHECKVAL<uint32>(L, 1);
             uint32 event_type = Eluna::CHECKVAL<uint32>(L, 2);
             Eluna::GetEluna(L)->SpellEventBindings->Clear(Key((Hooks::SpellEvents)event_type, entry));
+        }
+        return 0;
+    }
+
+    /**
+     * Unbinds event handlers for either all [Creature] events, or one type of [Creature] event.
+     *
+     * If `event_type` is `nil`, all [Creature] event handlers are cleared.
+     *
+     * Otherwise, only event handlers for `event_type` are cleared.
+     *
+     * @proto ()
+     * @proto (event_type)
+     * @param uint32 event_type : the event whose handlers will be cleared, see [Global:RegisterAllCreatureEvent]
+     */
+    int ClearAllCreatureEvents(lua_State* L)
+    {
+        typedef EventKey<Hooks::AllCreatureEvents> Key;
+
+        if (lua_isnoneornil(L, 1))
+        {
+            Eluna::GetEluna(L)->AllCreatureEventBindings->Clear();
+        }
+        else
+        {
+            uint32 event_type = Eluna::CHECKVAL<uint32>(L, 1);
+            Eluna::GetEluna(L)->AllCreatureEventBindings->Clear(Key((Hooks::AllCreatureEvents)event_type));
         }
         return 0;
     }
