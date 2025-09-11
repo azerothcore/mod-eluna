@@ -649,7 +649,7 @@ namespace LuaGlobalFunctions
      *
      *         // World
      *         WORLD_EVENT_ON_OPEN_STATE_CHANGE        =     8,        // (event, open) - Needs core support on Mangos
-     *         WORLD_EVENT_ON_CONFIG_LOAD              =     9,        // (event, reload)
+     *         WORLD_EVENT_ON_AFTER_CONFIG_LOAD        =     9,        // (event, reload)
      *         // UNUSED                               =     10,
      *         WORLD_EVENT_ON_SHUTDOWN_INIT            =     11,       // (event, code, mask)
      *         WORLD_EVENT_ON_SHUTDOWN_CANCEL          =     12,       // (event)
@@ -692,6 +692,9 @@ namespace LuaGlobalFunctions
      *
      *         GAME_EVENT_START                        =     34,       // (event, gameeventid)
      *         GAME_EVENT_STOP                         =     35,       // (event, gameeventid)
+     *
+     *         WORLD_EVENT_ON_BEFORE_WORLD_INITIALIZED =     36,       // (event)
+     *         WORLD_EVENT_ON_BEFORE_CONFIG_LOAD       =     37,       // (event, reload)
      *     };
      *
      * @proto cancel = (event, function)
