@@ -88,6 +88,7 @@ namespace Hooks
         REGTYPE_INSTANCE,
         REGTYPE_TICKET,
         REGTYPE_SPELL,
+        REGTYPE_ALL_CREATURE,
         REGTYPE_COUNT
     };
 
@@ -381,13 +382,22 @@ namespace Hooks
         TICKET_EVENT_ON_RESOLVE                         = 4,    // (event, ticket)
         TICKET_EVENT_COUNT
     };
-  
+
     enum SpellEvents
     {
         SPELL_EVENT_ON_PREPARE                          = 1, // (event, caster, spell)
         SPELL_EVENT_ON_CAST                             = 2, // (event, caster, spell, skipCheck)
         SPELL_EVENT_ON_CAST_CANCEL                      = 3, // (event, caster, spell, bySelf)
         SPELL_EVENT_COUNT
+    };
+
+    enum AllCreatureEvents
+    {
+        ALL_CREATURE_EVENT_ON_ADD                       = 1, // (event, creature)
+        ALL_CREATURE_EVENT_ON_REMOVE                    = 2, // (event, creature)
+        ALL_CREATURE_EVENT_ON_SELECT_LEVEL              = 3, // (event, creature_template, creature)
+        ALL_CREATURE_EVENT_ON_BEFORE_SELECT_LEVEL       = 4, // (event, creature_template, creature, level) - Can return the new level
+        ALL_CREATURE_EVENT_COUNT
     };
 };
 

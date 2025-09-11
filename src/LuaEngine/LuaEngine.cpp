@@ -194,6 +194,7 @@ GuildEventBindings(NULL),
 GroupEventBindings(NULL),
 VehicleEventBindings(NULL),
 BGEventBindings(NULL),
+AllCreatureEventBindings(NULL),
 
 PacketEventBindings(NULL),
 CreatureEventBindings(NULL),
@@ -298,6 +299,7 @@ void Eluna::CreateBindStores()
     VehicleEventBindings     = new BindingMap< EventKey<Hooks::VehicleEvents> >(L);
     BGEventBindings          = new BindingMap< EventKey<Hooks::BGEvents> >(L);
     TicketEventBindings      = new BindingMap< EventKey<Hooks::TicketEvents> >(L);
+    AllCreatureEventBindings = new BindingMap< EventKey<Hooks::AllCreatureEvents> >(L);
 
     PacketEventBindings      = new BindingMap< EntryKey<Hooks::PacketEvents> >(L);
     CreatureEventBindings    = new BindingMap< EntryKey<Hooks::CreatureEvents> >(L);
@@ -321,6 +323,7 @@ void Eluna::DestroyBindStores()
     delete GuildEventBindings;
     delete GroupEventBindings;
     delete VehicleEventBindings;
+    delete AllCreatureEventBindings;
 
     delete PacketEventBindings;
     delete CreatureEventBindings;
@@ -342,6 +345,7 @@ void Eluna::DestroyBindStores()
     GuildEventBindings = NULL;
     GroupEventBindings = NULL;
     VehicleEventBindings = NULL;
+    AllCreatureEventBindings = NULL;
 
     PacketEventBindings = NULL;
     CreatureEventBindings = NULL;
@@ -1034,6 +1038,11 @@ void Eluna::Push(lua_State* luastate, SpellEntry const& spell)
     Push(luastate, &spell);
 }
 
+void Eluna::Push(lua_State* luastate, CreatureTemplate const* creatureTemplate)
+{
+    Push<CreatureTemplate>(luastate, creatureTemplate);
+}
+
 std::string Eluna::FormatQuery(lua_State* L, const char* query)
 {
     int numArgs = lua_gettop(L);
@@ -1476,6 +1485,7 @@ int Eluna::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, 
                 return 1; // Stack: callback
             }
             break;
+
         case Hooks::REGTYPE_MAP:
             if (event_id < Hooks::INSTANCE_EVENT_COUNT)
             {
@@ -1485,6 +1495,7 @@ int Eluna::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, 
                 return 1; // Stack: callback
             }
             break;
+
         case Hooks::REGTYPE_INSTANCE:
             if (event_id < Hooks::INSTANCE_EVENT_COUNT)
             {
@@ -1494,6 +1505,7 @@ int Eluna::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, 
                 return 1; // Stack: callback
             }
             break;
+
       case Hooks::REGTYPE_TICKET:
             if (event_id < Hooks::TICKET_EVENT_COUNT)
             {
@@ -1503,6 +1515,7 @@ int Eluna::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, 
                 return 1; // Stack: callback
             }
             break;
+
         case Hooks::REGTYPE_SPELL:
             if (event_id < Hooks::SPELL_EVENT_COUNT)
             {
@@ -1516,6 +1529,16 @@ int Eluna::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, 
                 auto key = EntryKey<Hooks::SpellEvents>((Hooks::SpellEvents)event_id, entry);
                 bindingID = SpellEventBindings->Insert(key, functionRef, shots);
                 createCancelCallback(L, bindingID, SpellEventBindings);
+                return 1; // Stack: callback
+            }
+            break;
+
+        case Hooks::REGTYPE_ALL_CREATURE:
+            if (event_id < Hooks::ALL_CREATURE_EVENT_COUNT)
+            {
+                auto key = EventKey<Hooks::AllCreatureEvents>((Hooks::AllCreatureEvents)event_id);
+                bindingID = AllCreatureEventBindings->Insert(key, functionRef, shots);
+                createCancelCallback(L, bindingID, AllCreatureEventBindings);
                 return 1; // Stack: callback
             }
             break;
