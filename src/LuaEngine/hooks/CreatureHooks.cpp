@@ -327,3 +327,61 @@ bool Eluna::OwnerAttacked(Creature* me, Unit* target)
     Push(target);
     return CallAllFunctionsBool(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
 }
+
+void Eluna::OnCreatureAuraApply(Creature* me, Aura* aura)
+{
+    START_HOOK(CREATURE_EVENT_ON_AURA_APPLY, me);
+    Push(me);
+    Push(aura);
+    CallAllFunctions(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key);
+}
+
+void Eluna::OnCreatureHeal(Creature* me, Unit* target, uint32& gain)
+{
+    START_HOOK(CREATURE_EVENT_ON_HEAL, me);
+    Push(me);
+    Push(target);
+    Push(gain);
+
+    int gainIndex = lua_gettop(L);
+    int n = SetupStack(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key, 3);
+    while (n > 0)
+    {
+        int r = CallOneFunction(n--, 3, 1);
+        if (lua_isnumber(L, r))
+        {
+            gain = CHECKVAL<uint32>(L, r);
+            // Update the stack for subsequent calls.
+            ReplaceArgument(gain, gainIndex);
+        }
+
+        lua_pop(L, 1);
+    }
+
+    CleanUpStack(3);
+}
+
+void Eluna::OnCreatureDamage(Creature* me, Unit* target, uint32& damage)
+{
+    START_HOOK(CREATURE_EVENT_ON_DAMAGE, me);
+    Push(me);
+    Push(target);
+    Push(damage);
+
+    int damageIndex = lua_gettop(L);
+    int n = SetupStack(CreatureEventBindings, CreatureUniqueBindings, entry_key, unique_key, 3);
+    while (n > 0)
+    {
+        int r = CallOneFunction(n--, 3, 1);
+        if (lua_isnumber(L, r))
+        {
+            damage = CHECKVAL<uint32>(L, r);
+            // Update the stack for subsequent calls.
+            ReplaceArgument(damage, damageIndex);
+        }
+
+        lua_pop(L, 1);
+    }
+
+    CleanUpStack(3);
+}

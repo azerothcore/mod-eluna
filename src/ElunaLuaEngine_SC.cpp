@@ -1191,6 +1191,39 @@ public:
     }
 };
 
+class Eluna_UnitScript : public UnitScript
+{
+public:
+    Eluna_UnitScript() : UnitScript("Eluna_UnitScript") { }
+
+    void OnAuraApply(Unit* unit, Aura* aura) override
+    {
+        if (unit->IsPlayer())
+            sEluna->OnPlayerAuraApply(unit->ToPlayer(), aura);
+
+        if (unit->IsCreature())
+            sEluna->OnCreatureAuraApply(unit->ToCreature(), aura);
+    }
+
+    void OnHeal(Unit* healer, Unit* receiver, uint32& gain) override
+    {
+        if (healer->IsPlayer())
+            sEluna->OnPlayerHeal(healer->ToPlayer(), receiver, gain);
+
+        if (healer->IsCreature())
+            sEluna->OnCreatureHeal(healer->ToCreature(), receiver, gain);
+    }
+
+    void OnDamage(Unit* attacker, Unit* receiver, uint32& damage) override
+    {
+        if (attacker->IsPlayer())
+            sEluna->OnPlayerDamage(attacker->ToPlayer(), receiver, damage);
+
+        if (attacker->IsCreature())
+            sEluna->OnCreatureDamage(attacker->ToCreature(), receiver, damage);
+    }
+};
+
 // Group all custom scripts
 void AddSC_ElunaLuaEngine()
 {
@@ -1215,4 +1248,5 @@ void AddSC_ElunaLuaEngine()
     new Eluna_VehicleScript();
     new Eluna_WorldObjectScript();
     new Eluna_WorldScript();
+    new Eluna_UnitScript();
 }
