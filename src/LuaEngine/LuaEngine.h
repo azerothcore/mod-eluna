@@ -559,13 +559,15 @@ public:
 
     /* World */
     void OnOpenStateChange(bool open);
-    void OnConfigLoad(bool reload, bool isBefore);
+    void OnAfterConfigLoad(bool reload);
     void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask);
     void OnShutdownCancel();
     void OnStartup();
     void OnShutdown();
     void OnGameEventStart(uint32 eventid);
     void OnGameEventStop(uint32 eventid);
+    void OnBeforeWorldInitialized();
+    void OnBeforeConfigLoad(bool reload);
 
     /* Battle Ground */
     void OnBGStart(BattleGround* bg, BattleGroundTypeId bgId, uint32 instanceId);
@@ -578,7 +580,7 @@ public:
     void OnTicketClose(GmTicket* ticket);
     void OnTicketUpdateLastChange(GmTicket* ticket);
     void OnTicketResolve(GmTicket* ticket);
-  
+
     /* Spell */
     void OnSpellPrepare(Unit* caster, Spell* spell, SpellInfo const* spellInfo);
     void OnSpellCast(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool skipCheck);
