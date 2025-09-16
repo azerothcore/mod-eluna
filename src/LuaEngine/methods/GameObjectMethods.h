@@ -226,7 +226,6 @@ namespace LuaGameObject
     * @param uint32 amount = 1 : amount of the [Item] to add to the loot
     * @return uint32 itemGUIDlow : low GUID of the [Item]
     */
-
     int AddLoot(lua_State* L, GameObject* go)
     {
         int i = 1;
