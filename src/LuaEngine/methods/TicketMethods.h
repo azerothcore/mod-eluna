@@ -39,7 +39,7 @@ namespace LuaTicket
     /**
      * Return true if this GUID is the same as the [Player] who created the [Ticket] or false.
      *
-     * @param [Player] player
+     * @param ObjectGuid playerGuid
      *
      * @return bool isSamePlayer
      */
@@ -65,7 +65,7 @@ namespace LuaTicket
     /**
      * Return true if the [Ticket] is assigned to the [Player] or false.
      *
-     * @param [Player] player
+     * @param ObjectGuid playerGuid
      *
      * @return bool isAssignedTo
      */
@@ -80,7 +80,7 @@ namespace LuaTicket
     /**
      * Return true if the [Ticket] is not assigned to the [Player] or false.
      *
-     * @param [Player] player
+     * @param ObjectGuid playerGuid
      *
      * @return bool isAssignedNotTo
      */
@@ -95,7 +95,7 @@ namespace LuaTicket
     /**
      * Return the [Ticket] id.
      *
-     * @return [unint32] ticketId
+     * @return uint32 ticketId
      */
     int GetId(lua_State* L, GmTicket* ticket)
     {
@@ -150,7 +150,7 @@ namespace LuaTicket
     /**
      * Returns the assigned guid.
      *
-     * @return [ObjectGUID] assignedGuid
+     * @return uint32 assignedGuid
      */
     int GetAssignedToGUID(lua_State* L, GmTicket* ticket)
     {
@@ -172,7 +172,7 @@ namespace LuaTicket
     /**
      * Assign the [Ticket] to a player via his GUID.
      *
-     * @param [Player] player
+     * @param ObjectGuid playerGuid
      * @param bool isAdmin : true if the [Player] is an Admin or false (default false)
      */
     int SetAssignedTo(lua_State* L, GmTicket* ticket)
@@ -186,7 +186,7 @@ namespace LuaTicket
     /**
      * Set [Ticket] resolved by player via his GUID.
      *
-     * @param [Player] player
+     * @param ObjectGuid playerGuid
      */
     int SetResolvedBy(lua_State* L, GmTicket* ticket)
     {
