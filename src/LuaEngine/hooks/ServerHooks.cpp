@@ -227,10 +227,11 @@ void Eluna::OnOpenStateChange(bool open)
     CallAllFunctions(ServerEventBindings, key);
 }
 
-void Eluna::OnAfterConfigLoad(bool reload)
+void Eluna::OnConfigLoad(bool reload, bool isBefore)
 {
-    START_HOOK(WORLD_EVENT_ON_AFTER_CONFIG_LOAD);
+    START_HOOK(WORLD_EVENT_ON_CONFIG_LOAD);
     Push(reload);
+    Push(isBefore);
     CallAllFunctions(ServerEventBindings, key);
 }
 
@@ -274,19 +275,6 @@ void Eluna::OnStartup()
 void Eluna::OnShutdown()
 {
     START_HOOK(WORLD_EVENT_ON_SHUTDOWN);
-    CallAllFunctions(ServerEventBindings, key);
-}
-
-void Eluna::OnBeforeWorldInitialized()
-{
-    START_HOOK(WORLD_EVENT_ON_BEFORE_WORLD_INITIALIZED);
-    CallAllFunctions(ServerEventBindings, key);
-}
-
-void Eluna::OnBeforeConfigLoad(bool reload)
-{
-    START_HOOK(WORLD_EVENT_ON_BEFORE_CONFIG_LOAD);
-    Push(reload);
     CallAllFunctions(ServerEventBindings, key);
 }
 

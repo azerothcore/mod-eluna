@@ -1123,17 +1123,14 @@ public:
             ///- Initialize Lua Engine
             LOG_INFO("eluna", "Initialize Eluna Lua Engine...");
             Eluna::Initialize();
-
-            if(sEluna->IsInitialized())
-                sEluna->RunScripts();
         }
 
-        sEluna->OnBeforeConfigLoad(reload);
+        sEluna->OnConfigLoad(reload, true);
     }
 
     void OnAfterConfigLoad(bool reload) override
     {
-        sEluna->OnAfterConfigLoad(reload);
+        sEluna->OnConfigLoad(reload, false);
     }
 
     void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask) override
@@ -1168,7 +1165,10 @@ public:
 
     void OnBeforeWorldInitialized() override
     {
-        sEluna->OnBeforeWorldInitialized();
+        ///- Run eluna scripts.
+        // in multithread foreach: run scripts
+        sEluna->RunScripts();
+        sEluna->OnConfigLoad(false, false); // Must be done after Eluna is initialized and scripts have run.
     }
 };
 
