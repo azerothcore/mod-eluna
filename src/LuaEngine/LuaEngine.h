@@ -421,6 +421,9 @@ public:
     bool OwnerAttackedBy(Creature* me, Unit* attacker);
     bool OwnerAttacked(Creature* me, Unit* target);
     void On_Reset(Creature* me);
+    void OnCreatureAuraApply(Creature* me, Aura* aura);
+    void OnCreatureHeal(Creature* me, Unit* target, uint32& gain);
+    void OnCreatureDamage(Creature* me, Unit* target, uint32& gain);
 
     /* GameObject */
     void OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effIndex, GameObject* pTarget);
@@ -494,6 +497,9 @@ public:
     void OnPlayerUpdateSkill(Player* player, uint32 skill_id, uint32 value, uint32 max, uint32 step, uint32 new_value);
     bool CanPlayerResurrect(Player* player);
     void OnPlayerQuestAccept(Player* player, Quest const* quest);
+    void OnPlayerAuraApply(Player* player, Aura* aura);
+    void OnPlayerHeal(Player* player, Unit* target, uint32& gain);
+    void OnPlayerDamage(Player* player, Unit* target, uint32& gain);
 
     /* Vehicle */
     void OnInstall(Vehicle* vehicle);

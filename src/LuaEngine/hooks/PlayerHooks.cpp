@@ -768,3 +768,61 @@ void Eluna::OnPlayerQuestAccept(Player* player, Quest const* quest)
     Push(quest);
     CallAllFunctions(PlayerEventBindings, key);
 }
+
+void Eluna::OnPlayerAuraApply(Player* player, Aura* aura)
+{
+    START_HOOK(PLAYER_EVENT_ON_AURA_APPLY);
+    Push(player);
+    Push(aura);
+    CallAllFunctions(PlayerEventBindings, key);
+}
+
+void Eluna::OnPlayerHeal(Player* player, Unit* target, uint32& gain)
+{
+    START_HOOK(PLAYER_EVENT_ON_HEAL);
+    Push(player);
+    Push(target);
+    Push(gain);
+
+    int gainIndex = lua_gettop(L);
+    int n = SetupStack(PlayerEventBindings, key, 3);
+    while (n > 0)
+    {
+        int r = CallOneFunction(n--, 3, 1);
+        if (lua_isnumber(L, r))
+        {
+            gain = CHECKVAL<uint32>(L, r);
+            // Update the stack for subsequent calls.
+            ReplaceArgument(gain, gainIndex);
+        }
+
+        lua_pop(L, 1);
+    }
+
+    CleanUpStack(3);
+}
+
+void Eluna::OnPlayerDamage(Player* player, Unit* target, uint32& damage)
+{
+    START_HOOK(PLAYER_EVENT_ON_DAMAGE);
+    Push(player);
+    Push(target);
+    Push(damage);
+
+    int damageIndex = lua_gettop(L);
+    int n = SetupStack(PlayerEventBindings, key, 3);
+    while (n > 0)
+    {
+        int r = CallOneFunction(n--, 3, 1);
+        if (lua_isnumber(L, r))
+        {
+            damage = CHECKVAL<uint32>(L, r);
+            // Update the stack for subsequent calls.
+            ReplaceArgument(damage, damageIndex);
+        }
+
+        lua_pop(L, 1);
+    }
+
+    CleanUpStack(3);
+}

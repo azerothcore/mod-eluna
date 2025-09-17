@@ -782,6 +782,9 @@ namespace LuaGlobalFunctions
      *     PLAYER_EVENT_ON_BEFORE_UPDATE_SKILL     =     61,       // (event, player, skill_id, value, max, step) -- Can return new amount
      *     PLAYER_EVENT_ON_UPDATE_SKILL            =     62,       // (event, player, skill_id, value, max, step, new_value)
      *     PLAYER_EVENT_ON_QUEST_ACCEPT            =     63,       // (event, player, quest)
+     *     PLAYER_EVENT_ON_AURA_APPLY              =     64,       // (event, player, aura)
+     *     PLAYER_EVENT_ON_HEAL                    =     65,       // (event, player, target, heal) - Can return new heal amount
+     *     PLAYER_EVENT_ON_DAMAGE                  =     66,       // (event, player, target, damage) - Can return new damage amount
      * };
      * </pre>
      *
@@ -1162,6 +1165,9 @@ namespace LuaGlobalFunctions
      *     CREATURE_EVENT_ON_DIALOG_STATUS                   = 35, // (event, player, creature)
      *     CREATURE_EVENT_ON_ADD                             = 36, // (event, creature)
      *     CREATURE_EVENT_ON_REMOVE                          = 37, // (event, creature)
+     *     CREATURE_EVENT_ON_AURA_APPLY                      = 38, // (event, creature, aura)
+     *     CREATURE_EVENT_ON_HEAL                            = 39, // (event, creature, target, heal) - Can return new heal amount
+     *     CREATURE_EVENT_ON_DAMAGE                          = 40, // (event, creature, target, damage) - Can return new damage amount
      *     CREATURE_EVENT_COUNT
      * };
      * </pre>
