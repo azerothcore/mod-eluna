@@ -787,6 +787,9 @@ namespace LuaGlobalFunctions
      *     PLAYER_EVENT_ON_BEFORE_UPDATE_SKILL     =     61,       // (event, player, skill_id, value, max, step) -- Can return new amount
      *     PLAYER_EVENT_ON_UPDATE_SKILL            =     62,       // (event, player, skill_id, value, max, step, new_value)
      *     PLAYER_EVENT_ON_QUEST_ACCEPT            =     63,       // (event, player, quest)
+     *     PLAYER_EVENT_ON_AURA_APPLY              =     64,       // (event, player, aura)
+     *     PLAYER_EVENT_ON_HEAL                    =     65,       // (event, player, target, heal) - Can return new heal amount
+     *     PLAYER_EVENT_ON_DAMAGE                  =     66,       // (event, player, target, damage) - Can return new damage amount
      * };
      * </pre>
      *
@@ -1167,6 +1170,9 @@ namespace LuaGlobalFunctions
      *     CREATURE_EVENT_ON_DIALOG_STATUS                   = 35, // (event, player, creature)
      *     CREATURE_EVENT_ON_ADD                             = 36, // (event, creature)
      *     CREATURE_EVENT_ON_REMOVE                          = 37, // (event, creature)
+     *     CREATURE_EVENT_ON_AURA_APPLY                      = 38, // (event, creature, aura)
+     *     CREATURE_EVENT_ON_HEAL                            = 39, // (event, creature, target, heal) - Can return new heal amount
+     *     CREATURE_EVENT_ON_DAMAGE                          = 40, // (event, creature, target, damage) - Can return new damage amount
      *     CREATURE_EVENT_COUNT
      * };
      * </pre>
@@ -1333,6 +1339,29 @@ namespace LuaGlobalFunctions
     int RegisterSpellEvent(lua_State* L)
     {
         return RegisterEntryHelper(L, Hooks::REGTYPE_SPELL);
+    }
+
+    /**
+     * Registers a [Creature] event handler. It used AllCreatureScript so this don't need creature entry as a key.
+     *
+     * <pre>
+     * enum AllCreatureEvents
+     * {
+     *     ALL_CREATURE_EVENT_ON_ADD                       = 1, // (event, creature)
+     *     ALL_CREATURE_EVENT_ON_REMOVE                    = 2, // (event, creature)
+     *     ALL_CREATURE_EVENT_ON_SELECT_LEVEL              = 3, // (event, creature_template, creature)
+     *     ALL_CREATURE_EVENT_ON_BEFORE_SELECT_LEVEL       = 4, // (event, creature_template, creature, level) - Can return the new level
+     *     ALL_CREATURE_EVENT_COUNT
+     * };
+     * </pre>
+     *
+     * @param uint32 event : event ID, refer to AllCreatureEvents above
+     * @param function function : function to register
+     * @param uint32 shots = 0 : the number of times the function will be called, 0 means "always call this function"
+     */
+    int RegisterAllCreatureEvent(lua_State* L)
+    {
+        return RegisterEventHelper(L, Hooks::REGTYPE_ALL_CREATURE);
     }
 
     /**
@@ -3297,6 +3326,33 @@ namespace LuaGlobalFunctions
             uint32 entry = Eluna::CHECKVAL<uint32>(L, 1);
             uint32 event_type = Eluna::CHECKVAL<uint32>(L, 2);
             Eluna::GetEluna(L)->SpellEventBindings->Clear(Key((Hooks::SpellEvents)event_type, entry));
+        }
+        return 0;
+    }
+
+    /**
+     * Unbinds event handlers for either all [Creature] events, or one type of [Creature] event.
+     *
+     * If `event_type` is `nil`, all [Creature] event handlers are cleared.
+     *
+     * Otherwise, only event handlers for `event_type` are cleared.
+     *
+     * @proto ()
+     * @proto (event_type)
+     * @param uint32 event_type : the event whose handlers will be cleared, see [Global:RegisterAllCreatureEvent]
+     */
+    int ClearAllCreatureEvents(lua_State* L)
+    {
+        typedef EventKey<Hooks::AllCreatureEvents> Key;
+
+        if (lua_isnoneornil(L, 1))
+        {
+            Eluna::GetEluna(L)->AllCreatureEventBindings->Clear();
+        }
+        else
+        {
+            uint32 event_type = Eluna::CHECKVAL<uint32>(L, 1);
+            Eluna::GetEluna(L)->AllCreatureEventBindings->Clear(Key((Hooks::AllCreatureEvents)event_type));
         }
         return 0;
     }

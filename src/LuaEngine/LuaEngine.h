@@ -226,6 +226,7 @@ private:
     void Push(const std::string& value)         { Push(L, value); ++push_counter; }
     void Push(const char* value)                { Push(L, value); ++push_counter; }
     void Push(ObjectGuid const value)           { Push(L, value); ++push_counter; }
+    void Push(const CreatureTemplate* value)    { Push(L, value); ++push_counter; }
     template<typename T>
     void Push(T const* ptr)                     { Push(L, ptr); ++push_counter; }
 
@@ -238,25 +239,26 @@ public:
     QueryCallbackProcessor queryProcessor;
     EventEmitter<void(std::string)> OnError;
 
-    BindingMap< EventKey<Hooks::ServerEvents> >*     ServerEventBindings;
-    BindingMap< EventKey<Hooks::PlayerEvents> >*     PlayerEventBindings;
-    BindingMap< EventKey<Hooks::GuildEvents> >*      GuildEventBindings;
-    BindingMap< EventKey<Hooks::GroupEvents> >*      GroupEventBindings;
-    BindingMap< EventKey<Hooks::VehicleEvents> >*    VehicleEventBindings;
-    BindingMap< EventKey<Hooks::BGEvents> >*         BGEventBindings;
+    BindingMap< EventKey<Hooks::ServerEvents> >*        ServerEventBindings;
+    BindingMap< EventKey<Hooks::PlayerEvents> >*        PlayerEventBindings;
+    BindingMap< EventKey<Hooks::GuildEvents> >*         GuildEventBindings;
+    BindingMap< EventKey<Hooks::GroupEvents> >*         GroupEventBindings;
+    BindingMap< EventKey<Hooks::VehicleEvents> >*       VehicleEventBindings;
+    BindingMap< EventKey<Hooks::BGEvents> >*            BGEventBindings;
+    BindingMap< EventKey<Hooks::AllCreatureEvents> >*   AllCreatureEventBindings;
 
-    BindingMap< EntryKey<Hooks::PacketEvents> >*     PacketEventBindings;
-    BindingMap< EntryKey<Hooks::CreatureEvents> >*   CreatureEventBindings;
-    BindingMap< EntryKey<Hooks::GossipEvents> >*     CreatureGossipBindings;
-    BindingMap< EntryKey<Hooks::GameObjectEvents> >* GameObjectEventBindings;
-    BindingMap< EntryKey<Hooks::GossipEvents> >*     GameObjectGossipBindings;
-    BindingMap< EntryKey<Hooks::ItemEvents> >*       ItemEventBindings;
-    BindingMap< EntryKey<Hooks::GossipEvents> >*     ItemGossipBindings;
-    BindingMap< EntryKey<Hooks::GossipEvents> >*     PlayerGossipBindings;
-    BindingMap< EntryKey<Hooks::InstanceEvents> >*   MapEventBindings;
-    BindingMap< EntryKey<Hooks::InstanceEvents> >*   InstanceEventBindings;
-    BindingMap< EventKey<Hooks::TicketEvents> >*     TicketEventBindings;
-    BindingMap< EntryKey<Hooks::SpellEvents> >*      SpellEventBindings;
+    BindingMap< EntryKey<Hooks::PacketEvents> >*        PacketEventBindings;
+    BindingMap< EntryKey<Hooks::CreatureEvents> >*      CreatureEventBindings;
+    BindingMap< EntryKey<Hooks::GossipEvents> >*        CreatureGossipBindings;
+    BindingMap< EntryKey<Hooks::GameObjectEvents> >*    GameObjectEventBindings;
+    BindingMap< EntryKey<Hooks::GossipEvents> >*        GameObjectGossipBindings;
+    BindingMap< EntryKey<Hooks::ItemEvents> >*          ItemEventBindings;
+    BindingMap< EntryKey<Hooks::GossipEvents> >*        ItemGossipBindings;
+    BindingMap< EntryKey<Hooks::GossipEvents> >*        PlayerGossipBindings;
+    BindingMap< EntryKey<Hooks::InstanceEvents> >*      MapEventBindings;
+    BindingMap< EntryKey<Hooks::InstanceEvents> >*      InstanceEventBindings;
+    BindingMap< EventKey<Hooks::TicketEvents> >*        TicketEventBindings;
+    BindingMap< EntryKey<Hooks::SpellEvents> >*         SpellEventBindings;
 
     BindingMap< UniqueObjectKey<Hooks::CreatureEvents> >*  CreatureUniqueBindings;
 
@@ -299,12 +301,13 @@ public:
     static void Push(lua_State* luastate, ObjectGuid const guid);
     static void Push(lua_State* luastate, GemPropertiesEntry const& gemProperties);
     static void Push(lua_State* luastate, SpellEntry const& spell);
+    static void Push(lua_State* luastate, CreatureTemplate const* creatureTemplate);
     template<typename T>
     static void Push(lua_State* luastate, T const* ptr)
     {
         ElunaTemplate<T>::Push(luastate, ptr);
     }
-    
+
     static std::string FormatQuery(lua_State* L, const char* query);
 
     bool ExecuteCall(int params, int res);
@@ -418,6 +421,9 @@ public:
     bool OwnerAttackedBy(Creature* me, Unit* attacker);
     bool OwnerAttacked(Creature* me, Unit* target);
     void On_Reset(Creature* me);
+    void OnCreatureAuraApply(Creature* me, Aura* aura);
+    void OnCreatureHeal(Creature* me, Unit* target, uint32& gain);
+    void OnCreatureDamage(Creature* me, Unit* target, uint32& gain);
 
     /* GameObject */
     void OnDummyEffect(WorldObject* pCaster, uint32 spellId, SpellEffIndex effIndex, GameObject* pTarget);
@@ -491,6 +497,9 @@ public:
     void OnPlayerUpdateSkill(Player* player, uint32 skill_id, uint32 value, uint32 max, uint32 step, uint32 new_value);
     bool CanPlayerResurrect(Player* player);
     void OnPlayerQuestAccept(Player* player, Quest const* quest);
+    void OnPlayerAuraApply(Player* player, Aura* aura);
+    void OnPlayerHeal(Player* player, Unit* target, uint32& gain);
+    void OnPlayerDamage(Player* player, Unit* target, uint32& gain);
 
     /* Vehicle */
     void OnInstall(Vehicle* vehicle);
@@ -582,6 +591,12 @@ public:
     void OnSpellPrepare(Unit* caster, Spell* spell, SpellInfo const* spellInfo);
     void OnSpellCast(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool skipCheck);
     void OnSpellCastCancel(Unit* caster, Spell* spell, SpellInfo const* spellInfo, bool bySelf);
+
+    /* AllCreature */
+    void OnAllCreatureAddToWorld(Creature* creature);
+    void OnAllCreatureRemoveFromWorld(Creature* creature);
+    void OnAllCreatureSelectLevel(const CreatureTemplate* cinfo, Creature* creature);
+    void OnAllCreatureBeforeSelectLevel(const CreatureTemplate* cinfo, Creature* creature, uint8& level);
 };
 template<> Unit* Eluna::CHECKOBJ<Unit>(lua_State* L, int narg, bool error);
 template<> Object* Eluna::CHECKOBJ<Object>(lua_State* L, int narg, bool error);
