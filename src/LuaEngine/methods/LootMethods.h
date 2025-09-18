@@ -49,19 +49,12 @@ namespace LuaLoot
         uint16 loot_mode = ALE::CHECKVAL<uint16>(L, 6);
         bool needs_quest = ALE::CHECKVAL<bool>(L, 7, false);
 
-        if (allow_stacking)
+        for (LootItem &lootitem : loot->items)
         {
-            auto& container = needs_quest ? loot->quest_items : loot->items;
-
-            for (LootItem& lootitem : container)
+            if (lootitem.itemid == itemid && lootitem.count < 255)
             {
-                if (lootitem.itemid == itemid && lootitem.count < 255)
-                {
-                    uint32 add = std::max<uint32>(1u, min_count);
-                    uint32 newCount = std::min<uint32>(255u, lootitem.count + add);
-                    lootitem.count = static_cast<uint8>(newCount);
-                    return 0;
-                }
+                lootitem.count += min_count;
+                return 0;
             }
         }
 

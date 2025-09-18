@@ -189,7 +189,7 @@ public:
         }
 
         if (sALE->OnQuestReward(player, go, quest, opt))
-            return false;
+            return true;
 
         return true;
     }
