@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2010 - 2025 Eluna Lua Engine <http://emudevs.com/>
+* Copyright (C) 2010 - 2025 Eluna Lua Engine <https://elunaluaengine.github.io/>
 * This program is free software licensed under GPL version 3
 * Please see the included DOCS/LICENSE.md for more information
 */
@@ -23,7 +23,7 @@ namespace LuaLoot
      */
     int IsLooted(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, loot->isLooted());
+        ALE::Push(L, loot->isLooted());
         return 1;
     }
 
@@ -41,12 +41,12 @@ namespace LuaLoot
      */
     int AddItem(lua_State* L, Loot* loot)
     {
-        uint32 itemid = Eluna::CHECKVAL<uint32>(L, 2);
-        uint8 min_count = Eluna::CHECKVAL<uint8>(L, 3);
-        uint8 max_count = Eluna::CHECKVAL<uint8>(L, 4);
-        float chance = Eluna::CHECKVAL<float>(L, 5);
-        uint16 loot_mode = Eluna::CHECKVAL<uint16>(L, 6);
-        bool needs_quest = Eluna::CHECKVAL<bool>(L, 7, false);
+        uint32 itemid = ALE::CHECKVAL<uint32>(L, 2);
+        uint8 min_count = ALE::CHECKVAL<uint8>(L, 3);
+        uint8 max_count = ALE::CHECKVAL<uint8>(L, 4);
+        float chance = ALE::CHECKVAL<float>(L, 5);
+        uint16 loot_mode = ALE::CHECKVAL<uint16>(L, 6);
+        bool needs_quest = ALE::CHECKVAL<bool>(L, 7, false);
 
         for (LootItem &lootitem : loot->items)
         {
@@ -72,8 +72,8 @@ namespace LuaLoot
      */
     int HasItem(lua_State* L, Loot* loot)
     {
-        uint32 itemid = Eluna::CHECKVAL<uint32>(L, 2, false);
-        uint32 count = Eluna::CHECKVAL<uint32>(L, 3, false);
+        uint32 itemid = ALE::CHECKVAL<uint32>(L, 2, false);
+        uint32 count = ALE::CHECKVAL<uint32>(L, 3, false);
         bool has_item = false;
 
         if (itemid)
@@ -99,7 +99,7 @@ namespace LuaLoot
             }
         }
 
-        Eluna::Push(L, has_item);
+        ALE::Push(L, has_item);
         return 1;
     }
 
@@ -114,9 +114,9 @@ namespace LuaLoot
      */
     int RemoveItem(lua_State* L, Loot* loot)
     {
-        uint32 itemid = Eluna::CHECKVAL<uint32>(L, 2);
-        bool isCountSpecified = Eluna::CHECKVAL<bool>(L, 3, false);
-        uint32 count = isCountSpecified ? Eluna::CHECKVAL<uint32>(L, 4) : 0;
+        uint32 itemid = ALE::CHECKVAL<uint32>(L, 2);
+        bool isCountSpecified = ALE::CHECKVAL<bool>(L, 3, false);
+        uint32 count = isCountSpecified ? ALE::CHECKVAL<uint32>(L, 4) : 0;
 
         for (auto it = loot->items.begin(); it != loot->items.end();)
         {
@@ -151,7 +151,7 @@ namespace LuaLoot
      */
     int GetMoney(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, loot->gold);
+        ALE::Push(L, loot->gold);
         return 1;
     }
 
@@ -162,7 +162,7 @@ namespace LuaLoot
      */
     int SetMoney(lua_State* L, Loot* loot)
     {
-        uint32 gold = Eluna::CHECKVAL<uint32>(L, 2);
+        uint32 gold = ALE::CHECKVAL<uint32>(L, 2);
 
         loot->gold = gold;
         return 0;
@@ -176,8 +176,8 @@ namespace LuaLoot
      */
     int GenerateMoney(lua_State* L, Loot* loot)
     {
-        uint32 min_gold = Eluna::CHECKVAL<uint32>(L, 2);
-        uint32 max_gold = Eluna::CHECKVAL<uint32>(L, 3);
+        uint32 min_gold = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 max_gold = ALE::CHECKVAL<uint32>(L, 3);
 
         loot->generateMoneyLoot(min_gold, max_gold);
         return 0;
@@ -199,7 +199,7 @@ namespace LuaLoot
      */
     int SetUnlootedCount(lua_State* L, Loot* loot)
     {
-        uint32 count = Eluna::CHECKVAL<uint32>(L, 2);
+        uint32 count = ALE::CHECKVAL<uint32>(L, 2);
 
         loot->unlootedCount = count;
         return 0;
@@ -212,7 +212,7 @@ namespace LuaLoot
      */
     int GetUnlootedCount(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, loot->unlootedCount);
+        ALE::Push(L, loot->unlootedCount);
         return 1;
     }
 
@@ -238,22 +238,22 @@ namespace LuaLoot
         {
             lua_newtable(L);
 
-            Eluna::Push(L, loot->items[i].itemid);
+            ALE::Push(L, loot->items[i].itemid);
             lua_setfield(L, -2, "id");
 
-            Eluna::Push(L, loot->items[i].itemIndex);
+            ALE::Push(L, loot->items[i].itemIndex);
             lua_setfield(L, -2, "index");
 
-            Eluna::Push(L, loot->items[i].count);
+            ALE::Push(L, loot->items[i].count);
             lua_setfield(L, -2, "count");
 
-            Eluna::Push(L, loot->items[i].needs_quest);
+            ALE::Push(L, loot->items[i].needs_quest);
             lua_setfield(L, -2, "needs_quest");
 
-            Eluna::Push(L, loot->items[i].is_looted);
+            ALE::Push(L, loot->items[i].is_looted);
             lua_setfield(L, -2, "is_looted");
 
-            Eluna::Push(L, loot->items[i].rollWinnerGUID);
+            ALE::Push(L, loot->items[i].rollWinnerGUID);
             lua_setfield(L, -2, "roll_winner_guid");
 
             lua_rawseti(L, tbl, i + 1);
@@ -285,9 +285,9 @@ namespace LuaLoot
      */
     int SetItemLooted(lua_State* L, Loot* loot)
     {
-        uint32 itemid = Eluna::CHECKVAL<uint32>(L, 2);
-        uint32 count = Eluna::CHECKVAL<uint32>(L, 3);
-        bool looted = Eluna::CHECKVAL<bool>(L, 4, true);
+        uint32 itemid = ALE::CHECKVAL<uint32>(L, 2);
+        uint32 count = ALE::CHECKVAL<uint32>(L, 3);
+        bool looted = ALE::CHECKVAL<bool>(L, 4, true);
 
         for (auto &lootItem : loot->items)
         {
@@ -307,7 +307,7 @@ namespace LuaLoot
      */
     int IsEmpty(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, loot->empty());
+        ALE::Push(L, loot->empty());
         return 1;
     }
 
@@ -318,7 +318,7 @@ namespace LuaLoot
      */
     int GetLootType(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, loot->loot_type);
+        ALE::Push(L, loot->loot_type);
         return 1;
     }
 
@@ -346,7 +346,7 @@ namespace LuaLoot
      */
     int SetLootType(lua_State* L, Loot* loot)
     {
-        uint32 lootType = Eluna::CHECKVAL<uint32>(L, 2);
+        uint32 lootType = ALE::CHECKVAL<uint32>(L, 2);
         loot->loot_type = static_cast<LootType>(lootType);
         return 0;
     }
@@ -358,7 +358,7 @@ namespace LuaLoot
      */
     int GetRoundRobinPlayer(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, loot->roundRobinPlayer);
+        ALE::Push(L, loot->roundRobinPlayer);
         return 1;
     }
 
@@ -369,7 +369,7 @@ namespace LuaLoot
      */
     int SetRoundRobinPlayer(lua_State* L, Loot* loot)
     {
-        ObjectGuid guid = Eluna::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
         loot->roundRobinPlayer = guid;
         return 0;
     }
@@ -381,7 +381,7 @@ namespace LuaLoot
      */
     int GetLootOwner(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, loot->lootOwnerGUID);
+        ALE::Push(L, loot->lootOwnerGUID);
         return 1;
     }
 
@@ -392,7 +392,7 @@ namespace LuaLoot
      */
     int SetLootOwner(lua_State* L, Loot* loot)
     {
-        ObjectGuid guid = Eluna::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
         loot->lootOwnerGUID = guid;
         return 0;
     }
@@ -404,7 +404,7 @@ namespace LuaLoot
      */
     int GetContainer(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, loot->containerGUID);
+        ALE::Push(L, loot->containerGUID);
         return 1;
     }
 
@@ -415,7 +415,7 @@ namespace LuaLoot
      */
     int SetContainer(lua_State* L, Loot* loot)
     {
-        ObjectGuid guid = Eluna::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
         loot->containerGUID = guid;
         return 0;
     }
@@ -427,7 +427,7 @@ namespace LuaLoot
      */
     int GetSourceWorldObject(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, loot->sourceWorldObjectGUID);
+        ALE::Push(L, loot->sourceWorldObjectGUID);
         return 1;
     }
 
@@ -438,7 +438,7 @@ namespace LuaLoot
      */
     int SetSourceWorldObject(lua_State* L, Loot* loot)
     {
-        ObjectGuid guid = Eluna::CHECKVAL<ObjectGuid>(L, 2);
+        ObjectGuid guid = ALE::CHECKVAL<ObjectGuid>(L, 2);
         loot->sourceWorldObjectGUID = guid;
         return 0;
     }
@@ -450,7 +450,7 @@ namespace LuaLoot
      */
     int HasQuestItems(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, !loot->quest_items.empty());
+        ALE::Push(L, !loot->quest_items.empty());
         return 1;
     }
 
@@ -461,7 +461,7 @@ namespace LuaLoot
      */
     int HasItemForAll(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, loot->hasItemForAll());
+        ALE::Push(L, loot->hasItemForAll());
         return 1;
     }
 
@@ -472,7 +472,7 @@ namespace LuaLoot
      */
     int HasOverThresholdItem(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, loot->hasOverThresholdItem());
+        ALE::Push(L, loot->hasOverThresholdItem());
         return 1;
     }
 
@@ -483,7 +483,7 @@ namespace LuaLoot
      */
     int GetItemCount(lua_State* L, Loot* loot)
     {
-        Eluna::Push(L, static_cast<uint32>(loot->items.size() + loot->quest_items.size()));
+        ALE::Push(L, static_cast<uint32>(loot->items.size() + loot->quest_items.size()));
         return 1;
     }
 
@@ -495,8 +495,8 @@ namespace LuaLoot
      */
     int GetMaxSlotForPlayer(lua_State* L, Loot* loot)
     {
-        Player* player = Eluna::CHECKOBJ<Player>(L, 2);
-        Eluna::Push(L, loot->GetMaxSlotInLootFor(player));
+        Player* player = ALE::CHECKOBJ<Player>(L, 2);
+        ALE::Push(L, loot->GetMaxSlotInLootFor(player));
         return 1;
     }
 
@@ -507,7 +507,7 @@ namespace LuaLoot
      */
     int AddLooter(lua_State* L, Loot* loot)
     {
-        Player* player = Eluna::CHECKOBJ<Player>(L, 2);
+        Player* player = ALE::CHECKOBJ<Player>(L, 2);
         loot->AddLooter(player->GetGUID());
         return 0;
     }
@@ -519,7 +519,7 @@ namespace LuaLoot
      */
     int RemoveLooter(lua_State* L, Loot* loot)
     {
-        Player* player = Eluna::CHECKOBJ<Player>(L, 2);
+        Player* player = ALE::CHECKOBJ<Player>(L, 2);
         loot->RemoveLooter(player->GetGUID());
         return 0;
     }
