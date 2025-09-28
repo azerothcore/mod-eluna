@@ -189,9 +189,9 @@ public:
         }
 
         if (sEluna->OnQuestReward(player, go, quest, opt))
-            return false;
+            return true;
 
-        return true;
+        return false;
     }
 
     GameObjectAI* GetGameObjectAI(GameObject* go) const override
