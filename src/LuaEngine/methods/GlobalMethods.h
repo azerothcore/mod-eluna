@@ -105,7 +105,6 @@ namespace LuaGlobalFunctions
      * - for TrinityCore returns the realmID as it is in the conf file.
      * @return uint32 realm ID
      */
-
     int GetRealmID(lua_State* L)
     {
         Eluna::Push(L, sConfigMgr->GetOption<uint32>("RealmID", 1));
@@ -362,6 +361,12 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
+    /**
+    * Returns the [ItemTemplate] for the specified item ID.  The ItemTemplate contains all static data about an item, such as name, quality, stats, required level, and more.
+    *
+    * @param uint32 itemID : the item entry ID from `item_template` to look up
+    * @return [ItemTemplate] itemTemplate
+    */
     int GetItemTemplate(lua_State* L)
     {
         uint32 entry = Eluna::CHECKVAL<uint32>(L, 1);
@@ -775,6 +780,13 @@ namespace LuaGlobalFunctions
      *     PLAYER_EVENT_ON_BG_DESERTION            =     57,       // (event, player, type)
      *     PLAYER_EVENT_ON_PET_KILL                =     58,       // (event, player, killer)
      *     PLAYER_EVENT_ON_CAN_RESURRECT           =     59,       // (event, player)
+     *     PLAYER_EVENT_ON_CAN_UPDATE_SKILL        =     60,       // (event, player, skill_id) -- Can return true or false
+     *     PLAYER_EVENT_ON_BEFORE_UPDATE_SKILL     =     61,       // (event, player, skill_id, value, max, step) -- Can return new amount
+     *     PLAYER_EVENT_ON_UPDATE_SKILL            =     62,       // (event, player, skill_id, value, max, step, new_value)
+     *     PLAYER_EVENT_ON_QUEST_ACCEPT            =     63,       // (event, player, quest)
+     *     PLAYER_EVENT_ON_AURA_APPLY              =     64,       // (event, player, aura)
+     *     PLAYER_EVENT_ON_HEAL                    =     65,       // (event, player, target, heal) - Can return new heal amount
+     *     PLAYER_EVENT_ON_DAMAGE                  =     66,       // (event, player, target, damage) - Can return new damage amount
      * };
      * </pre>
      *
@@ -1155,6 +1167,9 @@ namespace LuaGlobalFunctions
      *     CREATURE_EVENT_ON_DIALOG_STATUS                   = 35, // (event, player, creature)
      *     CREATURE_EVENT_ON_ADD                             = 36, // (event, creature)
      *     CREATURE_EVENT_ON_REMOVE                          = 37, // (event, creature)
+     *     CREATURE_EVENT_ON_AURA_APPLY                      = 38, // (event, creature, aura)
+     *     CREATURE_EVENT_ON_HEAL                            = 39, // (event, creature, target, heal) - Can return new heal amount
+     *     CREATURE_EVENT_ON_DAMAGE                          = 40, // (event, creature, target, damage) - Can return new damage amount
      *     CREATURE_EVENT_COUNT
      * };
      * </pre>
@@ -1321,6 +1336,29 @@ namespace LuaGlobalFunctions
     int RegisterSpellEvent(lua_State* L)
     {
         return RegisterEntryHelper(L, Hooks::REGTYPE_SPELL);
+    }
+
+    /**
+     * Registers a [Creature] event handler. It used AllCreatureScript so this don't need creature entry as a key.
+     *
+     * <pre>
+     * enum AllCreatureEvents
+     * {
+     *     ALL_CREATURE_EVENT_ON_ADD                       = 1, // (event, creature)
+     *     ALL_CREATURE_EVENT_ON_REMOVE                    = 2, // (event, creature)
+     *     ALL_CREATURE_EVENT_ON_SELECT_LEVEL              = 3, // (event, creature_template, creature)
+     *     ALL_CREATURE_EVENT_ON_BEFORE_SELECT_LEVEL       = 4, // (event, creature_template, creature, level) - Can return the new level
+     *     ALL_CREATURE_EVENT_COUNT
+     * };
+     * </pre>
+     *
+     * @param uint32 event : event ID, refer to AllCreatureEvents above
+     * @param function function : function to register
+     * @param uint32 shots = 0 : the number of times the function will be called, 0 means "always call this function"
+     */
+    int RegisterAllCreatureEvent(lua_State* L)
+    {
+        return RegisterEventHelper(L, Hooks::REGTYPE_ALL_CREATURE);
     }
 
     /**
@@ -3290,6 +3328,33 @@ namespace LuaGlobalFunctions
     }
 
     /**
+     * Unbinds event handlers for either all [Creature] events, or one type of [Creature] event.
+     *
+     * If `event_type` is `nil`, all [Creature] event handlers are cleared.
+     *
+     * Otherwise, only event handlers for `event_type` are cleared.
+     *
+     * @proto ()
+     * @proto (event_type)
+     * @param uint32 event_type : the event whose handlers will be cleared, see [Global:RegisterAllCreatureEvent]
+     */
+    int ClearAllCreatureEvents(lua_State* L)
+    {
+        typedef EventKey<Hooks::AllCreatureEvents> Key;
+
+        if (lua_isnoneornil(L, 1))
+        {
+            Eluna::GetEluna(L)->AllCreatureEventBindings->Clear();
+        }
+        else
+        {
+            uint32 event_type = Eluna::CHECKVAL<uint32>(L, 1);
+            Eluna::GetEluna(L)->AllCreatureEventBindings->Clear(Key((Hooks::AllCreatureEvents)event_type));
+        }
+        return 0;
+    }
+
+    /**
      * Gets the faction which is the current owner of Halaa in Nagrand
      * 0 = Alliance
      * 1 = Horde
@@ -3390,15 +3455,14 @@ namespace LuaGlobalFunctions
     }
 
     /**
-     * Return the entrance position (x, y, z, o) of the specified dungeon map id
+     * Return the entrance position (x, y, z, o) of the specified dungeon map id.
      *
      * @param uint32 mapId
      *
-     * return uint32 pos_x
-     * return uint32 pos_y
-     * return uint32 pos_z
-     * return uint32 pos_o
-     * 
+     * @return uint32 pos_x
+     * @return uint32 pos_y
+     * @return uint32 pos_z
+     * @return uint32 pos_o
      */
     int GetMapEntrance(lua_State* L)
     {
@@ -3434,15 +3498,14 @@ namespace LuaGlobalFunctions
     }
   
     /**
-     * Returns the instance of the specified DBC (DatabaseClient) store.
+     * Returns an entry from the specified DBC (DatabaseClient) store.
      *
-     * This function retrieves the DBC store associated with the provided name 
-     * and pushes it onto the Lua stack.
+     * This function looks up an entry in a DBC file by name and ID, and pushes it onto the Lua stack.
      *
-     * @param const char* dbcName : The name of the DBC store to retrieve.
-     * @param uint32 id : The ID used to look up within the specified DBC store.
+     * @param string dbcName : The name of the DBC store (e.g., "ItemDisplayInfo")
+     * @param uint32 id : The ID used to look up within the specified DBC store
      *
-     * @return [DBCStore] store : The requested DBC store instance.
+     * @return [DBCStore] store : The requested DBC store instance
      */
     int LookupEntry(lua_State* L)
     {

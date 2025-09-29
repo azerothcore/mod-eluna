@@ -8,6 +8,8 @@
 #define QUESTMETHODS_H
 
 /***
+ * Represents a quest in the game, including its objectives, rewards, and conditions.
+ *
  * Inherits all methods from: none
  */
 namespace LuaQuest

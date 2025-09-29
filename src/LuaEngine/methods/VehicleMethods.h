@@ -8,6 +8,8 @@
 #define VEHICLEMETHODS_H
 
 /***
+ * Represents a vehicle in the game, which can carry passengers and provide special abilities or movement.
+ *
  * Inherits all methods from: none
  */
 namespace LuaVehicle

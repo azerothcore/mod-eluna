@@ -8,6 +8,8 @@
 #define WORLDOBJECTMETHODS_H
 
 /***
+ * Represents a [WorldObject] in the game world.
+ *
  * Inherits all methods from: [Object]
  */
 namespace LuaWorldObject

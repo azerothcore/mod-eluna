@@ -13,7 +13,7 @@
 using namespace Hooks;
 
 #define START_HOOK(EVENT) \
-    if (!IsEnabled())\
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())\
         return;\
     auto key = EventKey<GuildEvents>(EVENT);\
     if (!GuildEventBindings->HasBindingsFor(key))\

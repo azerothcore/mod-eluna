@@ -57,6 +57,7 @@ public:
     void OnCreatureAddWorld(Creature* creature) override
     {
         sEluna->OnAddToWorld(creature);
+        sEluna->OnAllCreatureAddToWorld(creature);
 
         if (creature->IsGuardian() && creature->ToTempSummon() && creature->ToTempSummon()->GetSummonerGUID().IsPlayer())
             sEluna->OnPetAddedToWorld(creature->ToTempSummon()->GetSummonerUnit()->ToPlayer(), creature);
@@ -65,6 +66,7 @@ public:
     void OnCreatureRemoveWorld(Creature* creature) override
     {
         sEluna->OnRemoveFromWorld(creature);
+        sEluna->OnAllCreatureRemoveFromWorld(creature);
     }
 
     bool CanCreatureQuestAccept(Player* player, Creature* creature, Quest const* quest) override
@@ -91,6 +93,16 @@ public:
             return luaAI;
 
         return nullptr;
+    }
+
+    void OnCreatureSelectLevel(const CreatureTemplate* cinfo, Creature* creature) override
+    {
+        sEluna->OnAllCreatureSelectLevel(cinfo, creature);
+    }
+
+    void OnBeforeCreatureSelectLevel(const CreatureTemplate* cinfo, Creature* creature, uint8& level) override
+    {
+        sEluna->OnAllCreatureBeforeSelectLevel(cinfo, creature, level);
     }
 };
 
@@ -1105,6 +1117,7 @@ public:
 
     void OnBeforeConfigLoad(bool reload) override
     {
+        ElunaConfig::GetInstance().Initialize(reload);
         if (!reload)
         {
             ///- Initialize Lua Engine
@@ -1190,6 +1203,45 @@ public:
     }
 };
 
+class Eluna_UnitScript : public UnitScript
+{
+public:
+    Eluna_UnitScript() : UnitScript("Eluna_UnitScript") { }
+
+    void OnAuraApply(Unit* unit, Aura* aura) override
+    {
+        if (unit->IsPlayer())
+            sEluna->OnPlayerAuraApply(unit->ToPlayer(), aura);
+
+        if (unit->IsCreature())
+            sEluna->OnCreatureAuraApply(unit->ToCreature(), aura);
+    }
+
+    void OnHeal(Unit* healer, Unit* receiver, uint32& gain) override
+    {
+        if (!receiver) return;
+        if (!healer) return;
+		
+        if (healer->IsPlayer())
+            sEluna->OnPlayerHeal(healer->ToPlayer(), receiver, gain);
+
+        if (healer->IsCreature())
+            sEluna->OnCreatureHeal(healer->ToCreature(), receiver, gain);
+    }
+
+    void OnDamage(Unit* attacker, Unit* receiver, uint32& damage) override
+    {
+        if (!receiver) return;
+        if (!attacker) return;
+
+        if (attacker->IsPlayer())
+            sEluna->OnPlayerDamage(attacker->ToPlayer(), receiver, damage);
+
+        if (attacker->IsCreature())
+            sEluna->OnCreatureDamage(attacker->ToCreature(), receiver, damage);
+    }
+};
+
 // Group all custom scripts
 void AddSC_ElunaLuaEngine()
 {
@@ -1214,4 +1266,5 @@ void AddSC_ElunaLuaEngine()
     new Eluna_VehicleScript();
     new Eluna_WorldObjectScript();
     new Eluna_WorldScript();
+    new Eluna_UnitScript();
 }

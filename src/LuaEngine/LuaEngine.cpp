@@ -78,7 +78,7 @@ void Eluna::Initialize()
     GEluna = new Eluna();
 
     // Start file watcher if enabled
-    if (eConfigMgr->GetOption<bool>("Eluna.AutoReload", false))
+    if (ElunaConfig::GetInstance().IsAutoReloadEnabled())
     {
         uint32 watchInterval = eConfigMgr->GetOption<uint32>("Eluna.AutoReloadInterval", 1);
         fileWatcher = std::make_unique<ElunaFileWatcher>();
@@ -117,9 +117,9 @@ void Eluna::LoadScriptPaths()
     lua_scripts.clear();
     lua_extensions.clear();
 
-    lua_folderpath = eConfigMgr->GetOption<std::string>("Eluna.ScriptPath", "lua_scripts");
-    const std::string& lua_path_extra = eConfigMgr->GetOption<std::string>("Eluna.RequirePaths", "");
-    const std::string& lua_cpath_extra = eConfigMgr->GetOption<std::string>("Eluna.RequireCPaths", "");
+    lua_folderpath = ElunaConfig::GetInstance().GetScriptPath();
+    const std::string& lua_path_extra = static_cast<std::string>(ElunaConfig::GetInstance().GetRequirePath());
+    const std::string& lua_cpath_extra = static_cast<std::string>(ElunaConfig::GetInstance().GetRequireCPath());
 
 #ifndef ELUNA_WINDOWS
     if (lua_folderpath[0] == '~')
@@ -182,7 +182,6 @@ void Eluna::_ReloadEluna()
 Eluna::Eluna() :
 event_level(0),
 push_counter(0),
-enabled(false),
 
 L(NULL),
 eventMgr(NULL),
@@ -195,6 +194,7 @@ GuildEventBindings(NULL),
 GroupEventBindings(NULL),
 VehicleEventBindings(NULL),
 BGEventBindings(NULL),
+AllCreatureEventBindings(NULL),
 
 PacketEventBindings(NULL),
 CreatureEventBindings(NULL),
@@ -249,9 +249,7 @@ void Eluna::CloseLua()
 
 void Eluna::OpenLua()
 {
-    enabled = eConfigMgr->GetOption<bool>("Eluna.Enabled", true);
-
-    if (!IsEnabled())
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())
     {
         ELUNA_LOG_INFO("[Eluna]: Eluna is disabled in config");
         return;
@@ -301,6 +299,7 @@ void Eluna::CreateBindStores()
     VehicleEventBindings     = new BindingMap< EventKey<Hooks::VehicleEvents> >(L);
     BGEventBindings          = new BindingMap< EventKey<Hooks::BGEvents> >(L);
     TicketEventBindings      = new BindingMap< EventKey<Hooks::TicketEvents> >(L);
+    AllCreatureEventBindings = new BindingMap< EventKey<Hooks::AllCreatureEvents> >(L);
 
     PacketEventBindings      = new BindingMap< EntryKey<Hooks::PacketEvents> >(L);
     CreatureEventBindings    = new BindingMap< EntryKey<Hooks::CreatureEvents> >(L);
@@ -324,6 +323,7 @@ void Eluna::DestroyBindStores()
     delete GuildEventBindings;
     delete GroupEventBindings;
     delete VehicleEventBindings;
+    delete AllCreatureEventBindings;
 
     delete PacketEventBindings;
     delete CreatureEventBindings;
@@ -345,6 +345,7 @@ void Eluna::DestroyBindStores()
     GuildEventBindings = NULL;
     GroupEventBindings = NULL;
     VehicleEventBindings = NULL;
+    AllCreatureEventBindings = NULL;
 
     PacketEventBindings = NULL;
     CreatureEventBindings = NULL;
@@ -532,7 +533,7 @@ int Eluna::TryLoadFromGlobalCache(lua_State* L, const std::string& filepath)
 
 int Eluna::LoadScriptWithCache(lua_State* L, const std::string& filepath, bool isMoonScript, uint32* compiledCount, uint32* cachedCount)
 {
-    bool cacheEnabled = eConfigMgr->GetOption<bool>("Eluna.BytecodeCache", true);
+    bool cacheEnabled = ElunaConfig::GetInstance().IsByteCodeCacheEnabled();
     
     if (cacheEnabled)
     {
@@ -671,7 +672,7 @@ static bool ScriptPathComparator(const LuaScript& first, const LuaScript& second
 void Eluna::RunScripts()
 {
     LOCK_ELUNA;
-    if (!IsEnabled())
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())
         return;
 
     uint32 oldMSTime = ElunaUtil::GetCurrTime();
@@ -855,7 +856,7 @@ bool Eluna::ExecuteCall(int params, int res)
         ASSERT(false); // stack probably corrupt
     }
 
-    bool usetrace = eConfigMgr->GetOption<bool>("Eluna.TraceBack", false);
+    bool usetrace = ElunaConfig::GetInstance().IsTraceBackEnabled();
     if (usetrace)
     {
         lua_pushcfunction(L, &StackTrace);
@@ -1035,6 +1036,11 @@ void Eluna::Push(lua_State* luastate, GemPropertiesEntry const& gemProperties)
 void Eluna::Push(lua_State* luastate, SpellEntry const& spell)
 {
     Push(luastate, &spell);
+}
+
+void Eluna::Push(lua_State* luastate, CreatureTemplate const* creatureTemplate)
+{
+    Push<CreatureTemplate>(luastate, creatureTemplate);
 }
 
 std::string Eluna::FormatQuery(lua_State* L, const char* query)
@@ -1479,6 +1485,7 @@ int Eluna::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, 
                 return 1; // Stack: callback
             }
             break;
+
         case Hooks::REGTYPE_MAP:
             if (event_id < Hooks::INSTANCE_EVENT_COUNT)
             {
@@ -1488,6 +1495,7 @@ int Eluna::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, 
                 return 1; // Stack: callback
             }
             break;
+
         case Hooks::REGTYPE_INSTANCE:
             if (event_id < Hooks::INSTANCE_EVENT_COUNT)
             {
@@ -1497,6 +1505,7 @@ int Eluna::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, 
                 return 1; // Stack: callback
             }
             break;
+
       case Hooks::REGTYPE_TICKET:
             if (event_id < Hooks::TICKET_EVENT_COUNT)
             {
@@ -1506,6 +1515,7 @@ int Eluna::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, 
                 return 1; // Stack: callback
             }
             break;
+
         case Hooks::REGTYPE_SPELL:
             if (event_id < Hooks::SPELL_EVENT_COUNT)
             {
@@ -1519,6 +1529,16 @@ int Eluna::Register(lua_State* L, uint8 regtype, uint32 entry, ObjectGuid guid, 
                 auto key = EntryKey<Hooks::SpellEvents>((Hooks::SpellEvents)event_id, entry);
                 bindingID = SpellEventBindings->Insert(key, functionRef, shots);
                 createCancelCallback(L, bindingID, SpellEventBindings);
+                return 1; // Stack: callback
+            }
+            break;
+
+        case Hooks::REGTYPE_ALL_CREATURE:
+            if (event_id < Hooks::ALL_CREATURE_EVENT_COUNT)
+            {
+                auto key = EventKey<Hooks::AllCreatureEvents>((Hooks::AllCreatureEvents)event_id);
+                bindingID = AllCreatureEventBindings->Insert(key, functionRef, shots);
+                createCancelCallback(L, bindingID, AllCreatureEventBindings);
                 return 1; // Stack: callback
             }
             break;
@@ -1576,7 +1596,7 @@ int Eluna::CallOneFunction(int number_of_functions, int number_of_arguments, int
 
 CreatureAI* Eluna::GetAI(Creature* creature)
 {
-    if (!IsEnabled())
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())
         return NULL;
 
     for (int i = 1; i < Hooks::CREATURE_EVENT_COUNT; ++i)
@@ -1596,7 +1616,7 @@ CreatureAI* Eluna::GetAI(Creature* creature)
 
 InstanceData* Eluna::GetInstanceData(Map* map)
 {
-    if (!IsEnabled())
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())
         return NULL;
 
     for (int i = 1; i < Hooks::INSTANCE_EVENT_COUNT; ++i)
@@ -1662,7 +1682,7 @@ void Eluna::FreeInstanceId(uint32 instanceId)
 {
     LOCK_ELUNA;
 
-    if (!IsEnabled())
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())
         return;
 
     for (int i = 1; i < Hooks::INSTANCE_EVENT_COUNT; ++i)

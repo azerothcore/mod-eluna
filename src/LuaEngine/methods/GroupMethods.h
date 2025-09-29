@@ -8,6 +8,8 @@
 #define GROUPMETHODS_H
 
 /***
+ * Represents a player group in the game, such as a party or raid.
+ *
  * Inherits all methods from: none
  */
 namespace LuaGroup

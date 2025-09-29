@@ -8,6 +8,8 @@
 #define GAMEOBJECTMETHODS_H
 
 /***
+ * Represents a game object in the world, such as doors, chests, and other interactive objects.
+ *
  * Inherits all methods from: [Object], [WorldObject]
  */
 namespace LuaGameObject
@@ -224,7 +226,6 @@ namespace LuaGameObject
     * @param uint32 amount = 1 : amount of the [Item] to add to the loot
     * @return uint32 itemGUIDlow : low GUID of the [Item]
     */
-
     int AddLoot(lua_State* L, GameObject* go)
     {
         int i = 1;

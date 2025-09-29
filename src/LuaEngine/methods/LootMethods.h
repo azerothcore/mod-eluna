@@ -225,6 +225,7 @@ namespace LuaLoot
      *   - count: quantity of the item
      *   - needs_quest: whether the item requires a quest
      *   - is_looted: whether the item has been looted
+     *   - roll_winner_guid: GUID of the player who won the item roll
      *
      * @return table items : array of item tables
      */
@@ -251,6 +252,9 @@ namespace LuaLoot
 
             Eluna::Push(L, loot->items[i].is_looted);
             lua_setfield(L, -2, "is_looted");
+
+            Eluna::Push(L, loot->items[i].rollWinnerGUID);
+            lua_setfield(L, -2, "roll_winner_guid");
 
             lua_rawseti(L, tbl, i + 1);
         }
@@ -350,7 +354,7 @@ namespace LuaLoot
     /**
      * Returns the [Player] GUID that owns this loot for round robin distribution.
      *
-     * @return ObjectGUID roundRobinPlayer : the player GUID
+     * @return ObjectGuid roundRobinPlayer : the player GUID
      */
     int GetRoundRobinPlayer(lua_State* L, Loot* loot)
     {

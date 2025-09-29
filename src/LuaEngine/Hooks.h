@@ -88,6 +88,7 @@ namespace Hooks
         REGTYPE_INSTANCE,
         REGTYPE_TICKET,
         REGTYPE_SPELL,
+        REGTYPE_ALL_CREATURE,
         REGTYPE_COUNT
     };
 
@@ -162,71 +163,74 @@ namespace Hooks
 
     enum PlayerEvents
     {
-        PLAYER_EVENT_ON_CHARACTER_CREATE        =     1,        // (event, player)
-        PLAYER_EVENT_ON_CHARACTER_DELETE        =     2,        // (event, guid)
-        PLAYER_EVENT_ON_LOGIN                   =     3,        // (event, player)
-        PLAYER_EVENT_ON_LOGOUT                  =     4,        // (event, player)
-        PLAYER_EVENT_ON_SPELL_CAST              =     5,        // (event, player, spell, skipCheck)
-        PLAYER_EVENT_ON_KILL_PLAYER             =     6,        // (event, killer, killed)
-        PLAYER_EVENT_ON_KILL_CREATURE           =     7,        // (event, killer, killed)
-        PLAYER_EVENT_ON_KILLED_BY_CREATURE      =     8,        // (event, killer, killed)
-        PLAYER_EVENT_ON_DUEL_REQUEST            =     9,        // (event, target, challenger)
-        PLAYER_EVENT_ON_DUEL_START              =     10,       // (event, player1, player2)
-        PLAYER_EVENT_ON_DUEL_END                =     11,       // (event, winner, loser, type)
-        PLAYER_EVENT_ON_GIVE_XP                 =     12,       // (event, player, amount, victim, source) - Can return new XP amount
-        PLAYER_EVENT_ON_LEVEL_CHANGE            =     13,       // (event, player, oldLevel)
-        PLAYER_EVENT_ON_MONEY_CHANGE            =     14,       // (event, player, amount) - Can return new money amount
-        PLAYER_EVENT_ON_REPUTATION_CHANGE       =     15,       // (event, player, factionId, standing, incremental) - Can return new standing -> if standing == -1, it will prevent default action (rep gain)
-        PLAYER_EVENT_ON_TALENTS_CHANGE          =     16,       // (event, player, points)
-        PLAYER_EVENT_ON_TALENTS_RESET           =     17,       // (event, player, noCost)
-        PLAYER_EVENT_ON_CHAT                    =     18,       // (event, player, msg, Type, lang) - Can return false, newMessage
-        PLAYER_EVENT_ON_WHISPER                 =     19,       // (event, player, msg, Type, lang, receiver) - Can return false, newMessage
-        PLAYER_EVENT_ON_GROUP_CHAT              =     20,       // (event, player, msg, Type, lang, group) - Can return false, newMessage
-        PLAYER_EVENT_ON_GUILD_CHAT              =     21,       // (event, player, msg, Type, lang, guild) - Can return false, newMessage
-        PLAYER_EVENT_ON_CHANNEL_CHAT            =     22,       // (event, player, msg, Type, lang, channel) - channel is negative for custom channels. Can return false, newMessage
-        PLAYER_EVENT_ON_EMOTE                   =     23,       // (event, player, emote) - Not triggered on any known emote
-        PLAYER_EVENT_ON_TEXT_EMOTE              =     24,       // (event, player, textEmote, emoteNum, guid)
-        PLAYER_EVENT_ON_SAVE                    =     25,       // (event, player)
-        PLAYER_EVENT_ON_BIND_TO_INSTANCE        =     26,       // (event, player, difficulty, mapid, permanent)
-        PLAYER_EVENT_ON_UPDATE_ZONE             =     27,       // (event, player, newZone, newArea)
-        PLAYER_EVENT_ON_MAP_CHANGE              =     28,       // (event, player)
+        PLAYER_EVENT_ON_CHARACTER_CREATE            =     1,        // (event, player)
+        PLAYER_EVENT_ON_CHARACTER_DELETE            =     2,        // (event, guid)
+        PLAYER_EVENT_ON_LOGIN                       =     3,        // (event, player)
+        PLAYER_EVENT_ON_LOGOUT                      =     4,        // (event, player)
+        PLAYER_EVENT_ON_SPELL_CAST                  =     5,        // (event, player, spell, skipCheck)
+        PLAYER_EVENT_ON_KILL_PLAYER                 =     6,        // (event, killer, killed)
+        PLAYER_EVENT_ON_KILL_CREATURE               =     7,        // (event, killer, killed)
+        PLAYER_EVENT_ON_KILLED_BY_CREATURE          =     8,        // (event, killer, killed)
+        PLAYER_EVENT_ON_DUEL_REQUEST                =     9,        // (event, target, challenger)
+        PLAYER_EVENT_ON_DUEL_START                  =     10,       // (event, player1, player2)
+        PLAYER_EVENT_ON_DUEL_END                    =     11,       // (event, winner, loser, type)
+        PLAYER_EVENT_ON_GIVE_XP                     =     12,       // (event, player, amount, victim, source) - Can return new XP amount
+        PLAYER_EVENT_ON_LEVEL_CHANGE                =     13,       // (event, player, oldLevel)
+        PLAYER_EVENT_ON_MONEY_CHANGE                =     14,       // (event, player, amount) - Can return new money amount
+        PLAYER_EVENT_ON_REPUTATION_CHANGE           =     15,       // (event, player, factionId, standing, incremental) - Can return new standing -> if standing == -1, it will prevent default action (rep gain)
+        PLAYER_EVENT_ON_TALENTS_CHANGE              =     16,       // (event, player, points)
+        PLAYER_EVENT_ON_TALENTS_RESET               =     17,       // (event, player, noCost)
+        PLAYER_EVENT_ON_CHAT                        =     18,       // (event, player, msg, Type, lang) - Can return false, newMessage
+        PLAYER_EVENT_ON_WHISPER                     =     19,       // (event, player, msg, Type, lang, receiver) - Can return false, newMessage
+        PLAYER_EVENT_ON_GROUP_CHAT                  =     20,       // (event, player, msg, Type, lang, group) - Can return false, newMessage
+        PLAYER_EVENT_ON_GUILD_CHAT                  =     21,       // (event, player, msg, Type, lang, guild) - Can return false, newMessage
+        PLAYER_EVENT_ON_CHANNEL_CHAT                =     22,       // (event, player, msg, Type, lang, channel) - channel is negative for custom channels. Can return false, newMessage
+        PLAYER_EVENT_ON_EMOTE                       =     23,       // (event, player, emote) - Not triggered on any known emote
+        PLAYER_EVENT_ON_TEXT_EMOTE                  =     24,       // (event, player, textEmote, emoteNum, guid)
+        PLAYER_EVENT_ON_SAVE                        =     25,       // (event, player)
+        PLAYER_EVENT_ON_BIND_TO_INSTANCE            =     26,       // (event, player, difficulty, mapid, permanent)
+        PLAYER_EVENT_ON_UPDATE_ZONE                 =     27,       // (event, player, newZone, newArea)
+        PLAYER_EVENT_ON_MAP_CHANGE                  =     28,       // (event, player)
 
         // Custom
-        PLAYER_EVENT_ON_EQUIP                   =     29,       // (event, player, item, bag, slot)
-        PLAYER_EVENT_ON_FIRST_LOGIN             =     30,       // (event, player)
-        PLAYER_EVENT_ON_CAN_USE_ITEM            =     31,       // (event, player, itemEntry) - Can return InventoryResult enum value
-        PLAYER_EVENT_ON_LOOT_ITEM               =     32,       // (event, player, item, count)
-        PLAYER_EVENT_ON_ENTER_COMBAT            =     33,       // (event, player, enemy)
-        PLAYER_EVENT_ON_LEAVE_COMBAT            =     34,       // (event, player)
-        PLAYER_EVENT_ON_REPOP                   =     35,       // (event, player)
-        PLAYER_EVENT_ON_RESURRECT               =     36,       // (event, player)
-        PLAYER_EVENT_ON_LOOT_MONEY              =     37,       // (event, player, amount)
-        PLAYER_EVENT_ON_QUEST_ABANDON           =     38,       // (event, player, questId)
-        PLAYER_EVENT_ON_LEARN_TALENTS           =     39,       // (event, player, talentId, talentRank, spellid)
-        // UNUSED                               =     40,       // (event, player)
-        // UNUSED                               =     41,       // (event, player)
-        PLAYER_EVENT_ON_COMMAND                 =     42,       // (event, player, command, chatHandler) - player is nil if command used from console. Can return false
-        PLAYER_EVENT_ON_PET_ADDED_TO_WORLD      =     43,       // (event, player, pet)
-        PLAYER_EVENT_ON_LEARN_SPELL             =     44,       // (event, player, spellId)
-        PLAYER_EVENT_ON_ACHIEVEMENT_COMPLETE    =     45,       // (event, player, achievement)
-        PLAYER_EVENT_ON_FFAPVP_CHANGE           =     46,       // (event, player, hasFfaPvp)
-        PLAYER_EVENT_ON_UPDATE_AREA             =     47,       // (event, player, oldArea, newArea)
-        PLAYER_EVENT_ON_CAN_INIT_TRADE          =     48,       // (event, player, target) - Can return false to prevent the trade
-        PLAYER_EVENT_ON_CAN_SEND_MAIL           =     49,       // (event, player, receiverGuid, mailbox, subject, body, money, cod, item) - Can return false to prevent sending the mail
-        PLAYER_EVENT_ON_CAN_JOIN_LFG            =     50,       // (event, player, roles, dungeons, comment) - Can return false to prevent queueing
-        PLAYER_EVENT_ON_QUEST_REWARD_ITEM       =     51,       // (event, player, item, count)
-        PLAYER_EVENT_ON_CREATE_ITEM             =     52,       // (event, player, item, count)
-        PLAYER_EVENT_ON_STORE_NEW_ITEM          =     53,       // (event, player, item, count) 
-        PLAYER_EVENT_ON_COMPLETE_QUEST          =     54,       // (event, player, quest)
-        PLAYER_EVENT_ON_CAN_GROUP_INVITE        =     55,       // (event, player, memberName) - Can return false to prevent inviting
-        PLAYER_EVENT_ON_GROUP_ROLL_REWARD_ITEM  =     56,       // (event, player, item, count, voteType, roll)
-        PLAYER_EVENT_ON_BG_DESERTION            =     57,       // (event, player, type)
-        PLAYER_EVENT_ON_PET_KILL                =     58,       // (event, player, killer)
-        PLAYER_EVENT_ON_CAN_RESURRECT           =     59,       // (event, player)
-        PLAYER_EVENT_ON_CAN_UPDATE_SKILL        =     60,       // (event, player, skill_id) -- Can return true or false
-        PLAYER_EVENT_ON_BEFORE_UPDATE_SKILL     =     61,       // (event, player, skill_id, value, max, step) -- Can return new amount
-        PLAYER_EVENT_ON_UPDATE_SKILL            =     62,       // (event, player, skill_id, value, max, step, new_value)
-        PLAYER_EVENT_ON_QUEST_ACCEPT            =     63,       // (event, player, quest)
+        PLAYER_EVENT_ON_EQUIP                       =     29,       // (event, player, item, bag, slot)
+        PLAYER_EVENT_ON_FIRST_LOGIN                 =     30,       // (event, player)
+        PLAYER_EVENT_ON_CAN_USE_ITEM                =     31,       // (event, player, itemEntry) - Can return InventoryResult enum value
+        PLAYER_EVENT_ON_LOOT_ITEM                   =     32,       // (event, player, item, count)
+        PLAYER_EVENT_ON_ENTER_COMBAT                =     33,       // (event, player, enemy)
+        PLAYER_EVENT_ON_LEAVE_COMBAT                =     34,       // (event, player)
+        PLAYER_EVENT_ON_REPOP                       =     35,       // (event, player)
+        PLAYER_EVENT_ON_RESURRECT                   =     36,       // (event, player)
+        PLAYER_EVENT_ON_LOOT_MONEY                  =     37,       // (event, player, amount)
+        PLAYER_EVENT_ON_QUEST_ABANDON               =     38,       // (event, player, questId)
+        PLAYER_EVENT_ON_LEARN_TALENTS               =     39,       // (event, player, talentId, talentRank, spellid)
+        // UNUSED                                   =     40,       // (event, player)
+        // UNUSED                                   =     41,       // (event, player)
+        PLAYER_EVENT_ON_COMMAND                     =     42,       // (event, player, command, chatHandler) - player is nil if command used from console. Can return false
+        PLAYER_EVENT_ON_PET_ADDED_TO_WORLD          =     43,       // (event, player, pet)
+        PLAYER_EVENT_ON_LEARN_SPELL                 =     44,       // (event, player, spellId)
+        PLAYER_EVENT_ON_ACHIEVEMENT_COMPLETE        =     45,       // (event, player, achievement)
+        PLAYER_EVENT_ON_FFAPVP_CHANGE               =     46,       // (event, player, hasFfaPvp)
+        PLAYER_EVENT_ON_UPDATE_AREA                 =     47,       // (event, player, oldArea, newArea)
+        PLAYER_EVENT_ON_CAN_INIT_TRADE              =     48,       // (event, player, target) - Can return false to prevent the trade
+        PLAYER_EVENT_ON_CAN_SEND_MAIL               =     49,       // (event, player, receiverGuid, mailbox, subject, body, money, cod, item) - Can return false to prevent sending the mail
+        PLAYER_EVENT_ON_CAN_JOIN_LFG                =     50,       // (event, player, roles, dungeons, comment) - Can return false to prevent queueing
+        PLAYER_EVENT_ON_QUEST_REWARD_ITEM           =     51,       // (event, player, item, count)
+        PLAYER_EVENT_ON_CREATE_ITEM                 =     52,       // (event, player, item, count)
+        PLAYER_EVENT_ON_STORE_NEW_ITEM              =     53,       // (event, player, item, count) 
+        PLAYER_EVENT_ON_COMPLETE_QUEST              =     54,       // (event, player, quest)
+        PLAYER_EVENT_ON_CAN_GROUP_INVITE            =     55,       // (event, player, memberName) - Can return false to prevent inviting
+        PLAYER_EVENT_ON_GROUP_ROLL_REWARD_ITEM      =     56,       // (event, player, item, count, voteType, roll)
+        PLAYER_EVENT_ON_BG_DESERTION                =     57,       // (event, player, type)
+        PLAYER_EVENT_ON_PET_KILL                    =     58,       // (event, player, killer)
+        PLAYER_EVENT_ON_CAN_RESURRECT               =     59,       // (event, player)
+        PLAYER_EVENT_ON_CAN_UPDATE_SKILL            =     60,       // (event, player, skill_id) - Can return true or false
+        PLAYER_EVENT_ON_BEFORE_UPDATE_SKILL         =     61,       // (event, player, skill_id, value, max, step) -- Can return new amount
+        PLAYER_EVENT_ON_UPDATE_SKILL                =     62,       // (event, player, skill_id, value, max, step, new_value)
+        PLAYER_EVENT_ON_QUEST_ACCEPT                =     63,       // (event, player, quest)
+        PLAYER_EVENT_ON_AURA_APPLY                  =     64,       // (event, player, aura)
+        PLAYER_EVENT_ON_HEAL                        =     65,       // (event, player, target, gain) - Can return new heal amount
+        PLAYER_EVENT_ON_DAMAGE                      =     66,       // (event, player, target, damage) - Can return new damage amount
 
         PLAYER_EVENT_COUNT
     };
@@ -313,6 +317,9 @@ namespace Hooks
         CREATURE_EVENT_ON_DIALOG_STATUS                   = 35, // (event, player, creature)
         CREATURE_EVENT_ON_ADD                             = 36, // (event, creature)
         CREATURE_EVENT_ON_REMOVE                          = 37, // (event, creature)
+        CREATURE_EVENT_ON_AURA_APPLY                      = 38, // (event, creature, aura)
+        CREATURE_EVENT_ON_HEAL                            = 39, // (event, creature, target, gain) - Can return new heal amount
+        CREATURE_EVENT_ON_DAMAGE                          = 40, // (event, creature, target, damage) - Can return new damage amount
         CREATURE_EVENT_COUNT
     };
 
@@ -381,13 +388,22 @@ namespace Hooks
         TICKET_EVENT_ON_RESOLVE                         = 4,    // (event, ticket)
         TICKET_EVENT_COUNT
     };
-  
+
     enum SpellEvents
     {
         SPELL_EVENT_ON_PREPARE                          = 1, // (event, caster, spell)
         SPELL_EVENT_ON_CAST                             = 2, // (event, caster, spell, skipCheck)
         SPELL_EVENT_ON_CAST_CANCEL                      = 3, // (event, caster, spell, bySelf)
         SPELL_EVENT_COUNT
+    };
+
+    enum AllCreatureEvents
+    {
+        ALL_CREATURE_EVENT_ON_ADD                       = 1, // (event, creature)
+        ALL_CREATURE_EVENT_ON_REMOVE                    = 2, // (event, creature)
+        ALL_CREATURE_EVENT_ON_SELECT_LEVEL              = 3, // (event, creature_template, creature)
+        ALL_CREATURE_EVENT_ON_BEFORE_SELECT_LEVEL       = 4, // (event, creature_template, creature, level) - Can return the new level
+        ALL_CREATURE_EVENT_COUNT
     };
 };
 

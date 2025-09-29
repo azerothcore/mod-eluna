@@ -15,7 +15,7 @@
 using namespace Hooks;
 
 #define START_HOOK(EVENT) \
-    if (!IsEnabled())\
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())\
         return;\
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\
@@ -23,7 +23,7 @@ using namespace Hooks;
     LOCK_ELUNA
 
 #define START_HOOK_WITH_RETVAL(EVENT, RETVAL) \
-    if (!IsEnabled())\
+    if (!ElunaConfig::GetInstance().IsElunaEnabled())\
         return RETVAL;\
     auto key = EventKey<ServerEvents>(EVENT);\
     if (!ServerEventBindings->HasBindingsFor(key))\

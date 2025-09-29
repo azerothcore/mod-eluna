@@ -9,6 +9,13 @@
 
 #include "Group.h"
 
+/***
+ * Represents a group loot roll session for an item, including player votes and roll statistics.
+ *
+ * Provides access to the item being rolled, player vote types, and counts of each roll type (Need, Greed, Pass).
+ *
+ * Inherits all methods from: none
+ */
 namespace LuaRoll
 {
     /**

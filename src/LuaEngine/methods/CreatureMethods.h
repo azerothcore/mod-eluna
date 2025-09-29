@@ -835,6 +835,12 @@ namespace LuaCreature
         return 1;
     }
 
+    /**
+     * Returns the loot mode flags for the specified [Creature].
+     *
+     * @param [Creature] creature : the creature whose loot mode to get
+     * @return uint16 lootMode : the loot mode bitmask of the creature
+     */
     int GetLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
     {
         Eluna::Push(L, creature->GetLootMode());
@@ -936,6 +942,12 @@ namespace LuaCreature
         return 0;
     }
 
+    /**
+     * Sets the loot mode flags for the specified [Creature].
+     *
+     * @param [Creature] creature : the creature whose loot mode to set
+     * @param uint16 lootMode : the loot mode bitmask to apply
+     */
     int SetLootMode(lua_State* L, Creature* creature) // TODO: Implement LootMode features
     {
         uint16 lootMode = Eluna::CHECKVAL<uint16>(L, 2);
