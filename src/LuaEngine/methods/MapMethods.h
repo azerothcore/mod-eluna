@@ -243,9 +243,7 @@ namespace LuaMap
         uint32 weatherType = ALE::CHECKVAL<uint32>(L, 3);
         float grade = ALE::CHECKVAL<float>(L, 4);
 
-        Weather* weather = WeatherMgr::FindWeather(zoneId);
-        if (!weather)
-            weather = WeatherMgr::AddWeather(zoneId);
+        Weather* weather = map->GetOrGenerateZoneDefaultWeather(zoneId);
         if (weather)
             weather->SetWeather((WeatherType)weatherType, grade);
         return 0;
