@@ -1210,6 +1210,8 @@ public:
 
     void OnAuraApply(Unit* unit, Aura* aura) override
     {
+        if (!unit || !aura) return;
+
         if (unit->IsPlayer())
             sEluna->OnPlayerAuraApply(unit->ToPlayer(), aura);
 
@@ -1219,9 +1221,8 @@ public:
 
     void OnHeal(Unit* healer, Unit* receiver, uint32& gain) override
     {
-        if (!receiver) return;
-        if (!healer) return;
-		
+        if (!receiver || !healer) return;
+
         if (healer->IsPlayer())
             sEluna->OnPlayerHeal(healer->ToPlayer(), receiver, gain);
 
@@ -1231,8 +1232,7 @@ public:
 
     void OnDamage(Unit* attacker, Unit* receiver, uint32& damage) override
     {
-        if (!receiver) return;
-        if (!attacker) return;
+        if (!attacker || !receiver) return;
 
         if (attacker->IsPlayer())
             sEluna->OnPlayerDamage(attacker->ToPlayer(), receiver, damage);
