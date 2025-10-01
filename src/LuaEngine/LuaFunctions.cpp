@@ -1751,6 +1751,7 @@ ElunaRegister<Loot> LootMethods[] =
     // Get
     { "GetMoney", &LuaLoot::GetMoney },
     { "GetItems", &LuaLoot::GetItems },
+    { "GetQuestItems", &LuaLoot::GetQuestItems },
     { "GetUnlootedCount", &LuaLoot::GetUnlootedCount },
     { "GetLootType", &LuaLoot::GetLootType },
     { "GetRoundRobinPlayer", &LuaLoot::GetRoundRobinPlayer },

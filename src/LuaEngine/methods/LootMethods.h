@@ -38,6 +38,7 @@ namespace LuaLoot
      * @param float chance : chance for the item to drop (0-100)
      * @param uint16 lootMode : loot mode for the item
      * @param bool needsQuest = false : if `true`, the item requires a quest to be looted
+     * @param bool allowStacking = true : if `true`, allow items to stack in the loot window
      */
     int AddItem(lua_State* L, Loot* loot)
     {
@@ -47,13 +48,21 @@ namespace LuaLoot
         float chance = Eluna::CHECKVAL<float>(L, 5);
         uint16 loot_mode = Eluna::CHECKVAL<uint16>(L, 6);
         bool needs_quest = Eluna::CHECKVAL<bool>(L, 7, false);
+        bool allow_stacking = Eluna::CHECKVAL<bool>(L, 8, true);
 
-        for (LootItem &lootitem : loot->items)
+        if (allow_stacking)
         {
-            if (lootitem.itemid == itemid && lootitem.count < 255)
+            auto& container = needs_quest ? loot->quest_items : loot->items;
+
+            for (LootItem& lootitem : container)
             {
-                lootitem.count += min_count;
-                return 0;
+                if (lootitem.itemid == itemid && lootitem.count < 255)
+                {
+                    uint32 add = std::max<uint32>(1u, min_count);
+                    uint32 newCount = std::min<uint32>(255u, lootitem.count + add);
+                    lootitem.count = static_cast<uint8>(newCount);
+                    return 0;
+                }
             }
         }
 
@@ -118,29 +127,46 @@ namespace LuaLoot
         bool isCountSpecified = Eluna::CHECKVAL<bool>(L, 3, false);
         uint32 count = isCountSpecified ? Eluna::CHECKVAL<uint32>(L, 4) : 0;
 
-        for (auto it = loot->items.begin(); it != loot->items.end();)
+        auto removeFromContainer = [&](auto& container, uint32& remaining)
         {
-            if (it->itemid == itemid)
+            for (auto it = container.begin(); it != container.end(); )
             {
-                if (isCountSpecified)
+                if (it->itemid == itemid)
                 {
-                    if (it->count > count)
+                    if (isCountSpecified)
                     {
-                        it->count -= count;
-                        break;
+                        if (it->count > remaining)
+                        {
+                            it->count -= static_cast<uint8>(remaining);
+                            remaining = 0;
+                            break;
+                        }
+                        else
+                        {
+                            remaining -= it->count;
+                            it = container.erase(it);
+                            if (remaining == 0)
+                                break;
+                            continue;
+                        }
                     }
                     else
                     {
-                        count -= it->count;
+                        it = container.erase(it);
+                        continue;
                     }
                 }
-                it = loot->items.erase(it);
-            }
-            else
-            {
                 ++it;
             }
-        }
+        };
+
+        // Remove from regular items
+        removeFromContainer(loot->items, count);
+
+        // Remove from quest items as well
+        if (!isCountSpecified || count > 0)
+            removeFromContainer(loot->quest_items, count);
+
         return 0;
     }
 
@@ -224,7 +250,7 @@ namespace LuaLoot
      *   - index: item index in the loot list
      *   - count: quantity of the item
      *   - needs_quest: whether the item requires a quest
-     *   - is_looted: whether the item has been looted
+     *   - is_looted: whether the item has already been looted
      *   - roll_winner_guid: GUID of the player who won the item roll
      *
      * @return table items : array of item tables
@@ -264,14 +290,66 @@ namespace LuaLoot
     }
 
     /**
+     * Returns a table containing all quest items in this [Loot].
+     *
+     * Each quest item is represented as a table with the following fields:
+     *   - id: item ID
+     *   - index: item index in the quest loot list
+     *   - count: quantity of the item
+     *   - needs_quest: whether the item requires a quest
+     *   - is_looted: whether the item has already been looted
+     *   - roll_winner_guid: GUID of the player who won the item roll
+     *
+     * @return table quest_items : array of quest item tables
+     */
+    int GetQuestItems(lua_State* L, Loot* loot)
+    {
+        lua_createtable(L, loot->quest_items.size(), 0);
+        int tbl = lua_gettop(L);
+
+        for (unsigned int i = 0; i < loot->quest_items.size(); i++)
+        {
+            lua_newtable(L);
+
+            Eluna::Push(L, loot->quest_items[i].itemid);
+            lua_setfield(L, -2, "id");
+
+            Eluna::Push(L, loot->quest_items[i].itemIndex);
+            lua_setfield(L, -2, "index");
+
+            Eluna::Push(L, loot->quest_items[i].count);
+            lua_setfield(L, -2, "count");
+
+            Eluna::Push(L, loot->quest_items[i].needs_quest);
+            lua_setfield(L, -2, "needs_quest");
+
+            Eluna::Push(L, loot->quest_items[i].is_looted);
+            lua_setfield(L, -2, "is_looted");
+
+            Eluna::Push(L, loot->quest_items[i].rollWinnerGUID);
+            lua_setfield(L, -2, "roll_winner_guid");
+
+            lua_rawseti(L, tbl, i + 1);
+        }
+
+        lua_settop(L, tbl);
+        return 1;
+    }
+
+    /**
      * Updates the index of all items in this [Loot] to match their position in the list.
      *
      * This should be called after removing items to ensure indices are sequential.
      */
     int UpdateItemIndex(lua_State* /*L*/, Loot* loot)
     {
-        for (unsigned int i = 0; i < loot->items.size(); i++)
-            loot->items[i].itemIndex = i;
+        uint32 index = 0;
+
+        for (unsigned int i = 0; i < loot->items.size(); ++i)
+            loot->items[i].itemIndex = index++;
+
+        for (unsigned int i = 0; i < loot->quest_items.size(); ++i)
+            loot->quest_items[i].itemIndex = index++;
 
         return 0;
     }
