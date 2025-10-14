@@ -1134,7 +1134,7 @@ namespace LuaCreature
     int DespawnOrUnsummon(lua_State* L, Creature* creature)
     {
         uint32 msTimeToDespawn = ALE::CHECKVAL<uint32>(L, 2, 0);
-        creature->DespawnOrUnsummon(msTimeToDespawn);
+        creature->DespawnOrUnsummon(Milliseconds(msTimeToDespawn));
 
         return 0;
     }
@@ -1363,7 +1363,7 @@ namespace LuaCreature
      *
      * @return [Loot] loot : the loot object
      */
-    int GetLoot(lua_State*L, Creature* creature)
+    int GetLoot(lua_State* L, Creature* creature)
     {
         ALE::Push(L, &creature->loot);
         return 1;

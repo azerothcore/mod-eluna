@@ -191,7 +191,7 @@ public:
         if (sALE->OnQuestReward(player, go, quest, opt))
             return false;
 
-        return true;
+        return false;
     }
 
     GameObjectAI* GetGameObjectAI(GameObject* go) const override
@@ -1210,6 +1210,8 @@ public:
 
     void OnAuraApply(Unit* unit, Aura* aura) override
     {
+        if (!unit || !aura) return;
+
         if (unit->IsPlayer())
             sALE->OnPlayerAuraApply(unit->ToPlayer(), aura);
 
@@ -1219,6 +1221,8 @@ public:
 
     void OnHeal(Unit* healer, Unit* receiver, uint32& gain) override
     {
+        if (!receiver || !healer) return;
+
         if (healer->IsPlayer())
             sALE->OnPlayerHeal(healer->ToPlayer(), receiver, gain);
 
@@ -1228,6 +1232,8 @@ public:
 
     void OnDamage(Unit* attacker, Unit* receiver, uint32& damage) override
     {
+        if (!attacker || !receiver) return;
+
         if (attacker->IsPlayer())
             sALE->OnPlayerDamage(attacker->ToPlayer(), receiver, damage);
 

@@ -238,14 +238,11 @@ namespace LuaMap
      */
     int SetWeather(lua_State* L, Map* map)
     {
-        (void)map; // ensure that the variable is referenced in order to pass compiler checks
         uint32 zoneId = ALE::CHECKVAL<uint32>(L, 2);
         uint32 weatherType = ALE::CHECKVAL<uint32>(L, 3);
         float grade = ALE::CHECKVAL<float>(L, 4);
 
-        Weather* weather = WeatherMgr::FindWeather(zoneId);
-        if (!weather)
-            weather = WeatherMgr::AddWeather(zoneId);
+        Weather* weather = map->GetOrGenerateZoneDefaultWeather(zoneId);
         if (weather)
             weather->SetWeather((WeatherType)weatherType, grade);
         return 0;
