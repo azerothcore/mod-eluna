@@ -156,6 +156,12 @@ void Eluna::_ReloadEluna()
     LOCK_ELUNA;
     ASSERT(IsInitialized());
 
+    if (!sEluna->CanReload())
+    {
+        sEluna->reloadScheduled = true;
+        return;
+    }
+    
     if (eConfigMgr->GetOption<bool>("Eluna.PlayerAnnounceReload", false))
         eWorldSessionMgr->SendServerMessage(SERVER_MSG_STRING, "Reloading Eluna...");
     else
@@ -176,6 +182,7 @@ void Eluna::_ReloadEluna()
     // Run scripts from laoded paths
     sEluna->RunScripts();
 
+    sEluna->reloadScheduled = false;
     reload = false;
 }
 
