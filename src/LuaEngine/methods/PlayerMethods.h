@@ -2296,7 +2296,7 @@ namespace LuaPlayer
     {
         Creature* obj = Eluna::CHECKOBJ<Creature>(L, 2);
 
-        player->GetSession()->SendTrainerList(obj->GET_GUID());
+        player->GetSession()->SendTrainerList(obj);
         return 0;
     }
 
